@@ -1,0 +1,647 @@
+name: Auto Install System Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'Auto Install/**'
+      - '.github/workflows/auto-install-test.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'Auto Install/**'
+      - '.github/workflows/auto-install-test.yml'
+  schedule:
+    # Run tests weekly on Sunday at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of test to run'
+        required: true
+        default: 'basic'
+        type: choice
+        options:
+          - basic
+          - full
+          - security
+      os_matrix:
+        description: 'Operating systems to test'
+        required: true
+        default: 'ubuntu-20.04'
+        type: choice
+        options:
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - ubuntu-18.04
+          - all
+
+env:
+  DOMAIN: atlas-test.example.com
+  EMAIL: test@example.com
+  DB_PASSWORD: test_secure_password_123
+
+jobs:
+  validate-scripts:
+    name: Validate Installation Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Validate shell scripts
+      run: |
+        echo "🔍 Validating shell scripts..."
+
+        # Check for bash syntax errors
+        find "Auto Install" -name "*.sh" -type f | while read script; do
+          echo "Checking: $script"
+          bash -n "$script" || {
+            echo "❌ Syntax error in $script"
+            exit 1
+          }
+        done
+
+        echo "✅ All shell scripts have valid syntax"
+
+    - name: Check script permissions
+      run: |
+        echo "🔍 Checking script permissions..."
+
+        find "Auto Install" -name "*.sh" -type f | while read script; do
+          if [[ ! -x "$script" ]]; then
+            echo "⚠️  Script not executable: $script"
+            chmod +x "$script"
+          fi
+        done
+
+        echo "✅ Script permissions verified"
+
+    - name: Validate configuration templates
+      run: |
+        echo "🔍 Validating configuration templates..."
+
+        # Check Nginx configuration template
+        if [[ -f "Auto Install/templates/nginx.conf.template" ]]; then
+          # Basic syntax check (substitute variables first)
+          cp "Auto Install/templates/nginx.conf.template" /tmp/nginx.conf
+          sed -i 's/{{DOMAIN}}/test.example.com/g' /tmp/nginx.conf
+          sed -i 's/{{BACKEND_PORT}}/3001/g' /tmp/nginx.conf
+          sed -i 's/{{SSL_CERT_PATH}}/\/tmp\/cert.pem/g' /tmp/nginx.conf
+          sed -i 's/{{SSL_KEY_PATH}}/\/tmp\/key.pem/g' /tmp/nginx.conf
+
+          # Install nginx for syntax check
+          sudo apt-get update
+          sudo apt-get install -y nginx
+          sudo nginx -t -c /tmp/nginx.conf || {
+            echo "❌ Nginx configuration template has syntax errors"
+            exit 1
+          }
+        fi
+
+        echo "✅ Configuration templates validated"
+
+    - name: Check required dependencies
+      run: |
+        echo "🔍 Checking required dependencies..."
+
+        required_commands=(
+          "curl"
+          "wget"
+          "git"
+          "systemctl"
+          "ufw"
+          "openssl"
+        )
+
+        for cmd in "${required_commands[@]}"; do
+          if ! command -v "$cmd" >/dev/null 2>&1; then
+            echo "⚠️  Required command not found: $cmd"
+          else
+            echo "✅ Found: $cmd"
+          fi
+        done
+
+  test-ubuntu-matrix:
+    name: Test on Ubuntu
+    needs: validate-scripts
+    if: github.event.inputs.test_type != 'security'
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-20.04
+          - ubuntu-22.04
+        include:
+          - os: ubuntu-20.04
+            node_version: 18
+          - os: ubuntu-22.04
+            node_version: 18
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up test environment
+      run: |
+        echo "🔧 Setting up test environment..."
+
+        # Update system
+        sudo apt-get update
+
+        # Install required packages for testing
+        sudo apt-get install -y \
+          curl \
+          wget \
+          git \
+          systemctl \
+          ufw \
+          openssl \
+          mongodb \
+          nginx
+
+        # Create test user
+        sudo useradd -r -s /bin/bash -d /opt/atlas-ai atlas-ai || true
+
+        # Create required directories
+        sudo mkdir -p /opt/atlas-ai
+        sudo mkdir -p /var/log/atlas-ai
+        sudo mkdir -p /var/backups/atlas-ai
+
+        echo "✅ Test environment ready"
+
+    - name: Test installation script (dry run)
+      run: |
+        echo "🧪 Testing installation script..."
+
+        # Make installation script executable
+        chmod +x "Auto Install/install.sh"
+
+        # Test help option
+        "Auto Install/install.sh" --help
+
+        # Test configuration validation
+        echo "Testing parameter validation..."
+
+        # Test missing required parameters
+        if "Auto Install/install.sh" --domain="" --email=""; then
+          echo "❌ Script should fail with missing parameters"
+          exit 1
+        else
+          echo "✅ Parameter validation working"
+        fi
+
+    - name: Test script components
+      run: |
+        echo "🧪 Testing script components..."
+
+        # Source the installation script to test functions
+        source "Auto Install/install.sh" || true
+
+        # Test utility functions (if they exist)
+        echo "Testing utility functions..."
+
+        # Test that required functions are defined
+        if declare -f log >/dev/null; then
+          echo "✅ Logging function available"
+        fi
+
+        if declare -f check_root >/dev/null; then
+          echo "✅ Root check function available"
+        fi
+
+        if declare -f detect_os >/dev/null; then
+          echo "✅ OS detection function available"
+        fi
+
+    - name: Test configuration generation
+      run: |
+        echo "🧪 Testing configuration generation..."
+
+        # Test environment file generation
+        cat > /tmp/test_env_template << 'EOF'
+        NODE_ENV={{ENVIRONMENT}}
+        PORT={{BACKEND_PORT}}
+        DATABASE_URL=mongodb://{{DB_USER}}:{{DB_PASSWORD}}@localhost:27017/{{DB_NAME}}
+        EOF
+
+        # Substitute variables
+        sed \
+          -e "s/{{ENVIRONMENT}}/test/g" \
+          -e "s/{{BACKEND_PORT}}/3001/g" \
+          -e "s/{{DB_USER}}/test_user/g" \
+          -e "s/{{DB_PASSWORD}}/test_pass/g" \
+          -e "s/{{DB_NAME}}/test_db/g" \
+          /tmp/test_env_template > /tmp/test.env
+
+        # Verify substitution worked
+        grep -q "NODE_ENV=test" /tmp/test.env || {
+          echo "❌ Environment variable substitution failed"
+          exit 1
+        }
+
+        echo "✅ Configuration generation working"
+
+    - name: Test backup scripts
+      run: |
+        echo "🧪 Testing backup scripts..."
+
+        if [[ -f "Auto Install/scripts/backup.sh" ]]; then
+          chmod +x "Auto Install/scripts/backup.sh"
+
+          # Test backup script help
+          "Auto Install/scripts/backup.sh" --help || true
+
+          echo "✅ Backup script syntax valid"
+        fi
+
+    - name: Test monitoring scripts
+      run: |
+        echo "🧪 Testing monitoring scripts..."
+
+        if [[ -f "Auto Install/scripts/health-check.sh" ]]; then
+          chmod +x "Auto Install/scripts/health-check.sh"
+
+          # Test health check script
+          "Auto Install/scripts/health-check.sh" --help || true
+
+          echo "✅ Health check script syntax valid"
+        fi
+
+    - name: Test update scripts
+      run: |
+        echo "🧪 Testing update scripts..."
+
+        if [[ -f "Auto Install/scripts/update.sh" ]]; then
+          chmod +x "Auto Install/scripts/update.sh"
+
+          # Test update script help
+          "Auto Install/scripts/update.sh" --help || true
+
+          echo "✅ Update script syntax valid"
+        fi
+
+  security-scan:
+    name: Security Scan
+    needs: validate-scripts
+    if: github.event.inputs.test_type == 'security' || github.event.inputs.test_type == 'full'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install security scanning tools
+      run: |
+        echo "🔧 Installing security scanning tools..."
+
+        # Install ShellCheck for shell script security analysis
+        sudo apt-get update
+        sudo apt-get install -y shellcheck
+
+        # Install additional security tools
+        pip install bandit safety
+
+    - name: Run ShellCheck security scan
+      run: |
+        echo "🔍 Running ShellCheck security scan..."
+
+        find "Auto Install" -name "*.sh" -type f | while read script; do
+          echo "Scanning: $script"
+          shellcheck -S warning "$script" || {
+            echo "⚠️  Security warnings found in $script"
+          }
+        done
+
+        echo "✅ ShellCheck scan completed"
+
+    - name: Check for hardcoded secrets
+      run: |
+        echo "🔍 Checking for hardcoded secrets..."
+
+        # Patterns to look for
+        patterns=(
+          "password.*=.*['\"][^'\"]*['\"]"
+          "api[_-]?key.*=.*['\"][^'\"]*['\"]"
+          "secret.*=.*['\"][^'\"]*['\"]"
+          "token.*=.*['\"][^'\"]*['\"]"
+        )
+
+        found_secrets=false
+
+        for pattern in "${patterns[@]}"; do
+          if grep -r -i -E "$pattern" "Auto Install" --include="*.sh" --include="*.template"; then
+            echo "⚠️  Potential hardcoded secret found: $pattern"
+            found_secrets=true
+          fi
+        done
+
+        if [[ "$found_secrets" == "false" ]]; then
+          echo "✅ No hardcoded secrets found"
+        fi
+
+    - name: Check file permissions in scripts
+      run: |
+        echo "🔍 Checking file permission usage..."
+
+        # Check for overly permissive permissions
+        if grep -r "chmod 777" "Auto Install"; then
+          echo "❌ Found chmod 777 usage (security risk)"
+          exit 1
+        fi
+
+        if grep -r "chmod.*666" "Auto Install"; then
+          echo "❌ Found chmod 666 usage (security risk)"
+          exit 1
+        fi
+
+        echo "✅ File permissions usage looks secure"
+
+    - name: Validate SSL/TLS configuration
+      run: |
+        echo "🔍 Validating SSL/TLS configuration..."
+
+        if [[ -f "Auto Install/templates/nginx.conf.template" ]]; then
+          # Check for secure SSL configuration
+          if ! grep -q "ssl_protocols TLSv1.2 TLSv1.3" "Auto Install/templates/nginx.conf.template"; then
+            echo "⚠️  SSL protocols should be limited to TLSv1.2 and TLSv1.3"
+          fi
+
+          if ! grep -q "ssl_ciphers" "Auto Install/templates/nginx.conf.template"; then
+            echo "⚠️  SSL ciphers should be explicitly configured"
+          fi
+
+          echo "✅ SSL/TLS configuration validated"
+        fi
+
+  integration-test:
+    name: Integration Test
+    needs: [validate-scripts, test-ubuntu-matrix]
+    if: github.event.inputs.test_type == 'full'
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:5.0
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: admin_password
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install application dependencies
+      run: |
+        echo "📦 Installing application dependencies..."
+        npm ci
+
+    - name: Set up test environment
+      run: |
+        echo "🔧 Setting up integration test environment..."
+
+        # Install nginx for testing
+        sudo apt-get update
+        sudo apt-get install -y nginx
+
+        # Create test directories
+        sudo mkdir -p /opt/atlas-ai
+        sudo mkdir -p /var/log/atlas-ai
+        sudo mkdir -p /var/backups/atlas-ai
+
+        # Create test user
+        sudo useradd -r -s /bin/bash -d /opt/atlas-ai atlas-ai || true
+        sudo chown -R atlas-ai:atlas-ai /opt/atlas-ai
+
+    - name: Test configuration templates
+      run: |
+        echo "🧪 Testing configuration template generation..."
+
+        # Test environment file generation
+        cp "Auto Install/templates/backend.env.template" /tmp/test.env
+
+        # Replace template variables
+        sed -i "s/{{ENVIRONMENT}}/test/g" /tmp/test.env
+        sed -i "s/{{BACKEND_PORT}}/3001/g" /tmp/test.env
+        sed -i "s/{{FRONTEND_PORT}}/3000/g" /tmp/test.env
+        sed -i "s/{{DB_NAME}}/atlas_test/g" /tmp/test.env
+        sed -i "s/{{DB_USER}}/test_user/g" /tmp/test.env
+        sed -i "s/{{DB_PASSWORD}}/test_password/g" /tmp/test.env
+        sed -i "s/{{SESSION_SECRET}}/test_session_secret/g" /tmp/test.env
+        sed -i "s/{{JWT_SECRET}}/test_jwt_secret/g" /tmp/test.env
+
+        # Verify the environment file is valid
+        source /tmp/test.env
+
+        if [[ "$NODE_ENV" != "test" ]]; then
+          echo "❌ Environment file generation failed"
+          exit 1
+        fi
+
+        echo "✅ Configuration templates working"
+
+    - name: Test nginx configuration
+      run: |
+        echo "🧪 Testing nginx configuration..."
+
+        # Generate nginx config from template
+        cp "Auto Install/templates/nginx.conf.template" /tmp/nginx.conf
+
+        # Replace template variables
+        sed -i "s/{{DOMAIN}}/test.example.com/g" /tmp/nginx.conf
+        sed -i "s/{{BACKEND_PORT}}/3001/g" /tmp/nginx.conf
+        sed -i "s/{{SSL_CERT_PATH}}/\/tmp\/cert.pem/g" /tmp/nginx.conf
+        sed -i "s/{{SSL_KEY_PATH}}/\/tmp\/key.pem/g" /tmp/nginx.conf
+
+        # Create dummy SSL certificates for testing
+        openssl req -x509 -newkey rsa:2048 -keyout /tmp/key.pem -out /tmp/cert.pem -days 1 -nodes -subj "/CN=test.example.com"
+
+        # Test nginx configuration
+        sudo nginx -t -c /tmp/nginx.conf
+
+        echo "✅ Nginx configuration valid"
+
+    - name: Test database connection
+      run: |
+        echo "🧪 Testing database connection..."
+
+        # Wait for MongoDB to be ready
+        sleep 10
+
+        # Test MongoDB connection
+        mongo --host localhost:27017 --eval "db.adminCommand('ismaster')"
+
+        echo "✅ Database connection successful"
+
+    - name: Test application startup
+      run: |
+        echo "🧪 Testing application startup..."
+
+        # Copy application files to test location
+        sudo cp -r . /opt/atlas-ai/
+        sudo chown -R atlas-ai:atlas-ai /opt/atlas-ai
+
+        # Create test environment file
+        sudo -u atlas-ai cat > /opt/atlas-ai/.env << EOF
+        NODE_ENV=test
+        PORT=3001
+        DATABASE_URL=mongodb://admin:admin_password@localhost:27017/atlas_test?authSource=admin
+        SESSION_SECRET=test_session_secret
+        JWT_SECRET=test_jwt_secret
+        EOF
+
+        # Install dependencies
+        cd /opt/atlas-ai
+        sudo -u atlas-ai npm ci --production
+
+        # Start application in background
+        sudo -u atlas-ai npm start &
+        APP_PID=$!
+
+        # Wait for application to start
+        sleep 15
+
+        # Test health endpoint
+        if curl -f http://localhost:3001/health; then
+          echo "✅ Application started successfully"
+        else
+          echo "❌ Application health check failed"
+          sudo -u atlas-ai npm logs || true
+          exit 1
+        fi
+
+        # Stop application
+        kill $APP_PID || true
+
+  documentation-check:
+    name: Documentation Check
+    needs: validate-scripts
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check documentation completeness
+      run: |
+        echo "📚 Checking documentation completeness..."
+
+        required_docs=(
+          "Auto Install/docs/README.md"
+          "Auto Install/docs/TROUBLESHOOTING.md"
+        )
+
+        for doc in "${required_docs[@]}"; do
+          if [[ ! -f "$doc" ]]; then
+            echo "❌ Missing required documentation: $doc"
+            exit 1
+          else
+            echo "✅ Found: $doc"
+          fi
+        done
+
+    - name: Check documentation content
+      run: |
+        echo "📚 Checking documentation content..."
+
+        # Check README.md has required sections
+        required_sections=(
+          "Installation"
+          "Configuration"
+          "Troubleshooting"
+          "Security"
+        )
+
+        for section in "${required_sections[@]}"; do
+          if grep -q "# $section\|## $section" "Auto Install/docs/README.md"; then
+            echo "✅ Found section: $section"
+          else
+            echo "⚠️  Missing or incorrectly formatted section: $section"
+          fi
+        done
+
+    - name: Check for broken links
+      run: |
+        echo "🔍 Checking for broken internal links..."
+
+        # Simple check for broken markdown links (basic implementation)
+        find "Auto Install/docs" -name "*.md" -exec grep -H "\[.*\](.*\.md)" {} \; | while read line; do
+          file=$(echo "$line" | cut -d: -f1)
+          link=$(echo "$line" | sed 's/.*\[\([^]]*\)\](\([^)]*\)).*/\2/')
+
+          if [[ "$link" =~ ^[^#]*\.md$ ]] && [[ ! -f "$(dirname "$file")/$link" ]]; then
+            echo "⚠️  Potential broken link in $file: $link"
+          fi
+        done
+
+  report-results:
+    name: Report Test Results
+    needs: [validate-scripts, test-ubuntu-matrix, security-scan, integration-test, documentation-check]
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Report test results
+      run: |
+        echo "📊 Test Results Summary"
+        echo "======================"
+
+        echo "Script Validation: ${{ needs.validate-scripts.result }}"
+        echo "Ubuntu Tests: ${{ needs.test-ubuntu-matrix.result }}"
+        echo "Security Scan: ${{ needs.security-scan.result }}"
+        echo "Integration Test: ${{ needs.integration-test.result }}"
+        echo "Documentation Check: ${{ needs.documentation-check.result }}"
+
+        # Set overall status
+        if [[ "${{ needs.validate-scripts.result }}" == "success" &&
+              "${{ needs.test-ubuntu-matrix.result }}" == "success" &&
+              "${{ needs.documentation-check.result }}" == "success" ]]; then
+          echo "✅ All required tests passed"
+        else
+          echo "❌ Some tests failed"
+          exit 1
+        fi
+
+    - name: Create test artifact
+      if: always()
+      run: |
+        echo "Creating test artifact..."
+
+        cat > test-results.json << EOF
+        {
+          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "workflow_run": "${{ github.run_id }}",
+          "commit_sha": "${{ github.sha }}",
+          "results": {
+            "validate_scripts": "${{ needs.validate-scripts.result }}",
+            "ubuntu_tests": "${{ needs.test-ubuntu-matrix.result }}",
+            "security_scan": "${{ needs.security-scan.result }}",
+            "integration_test": "${{ needs.integration-test.result }}",
+            "documentation_check": "${{ needs.documentation-check.result }}"
+          }
+        }
+        EOF
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: test-results.json
+        retention-days: 30

@@ -1,0 +1,5 @@
+{
+  "name": "Atlas AI Support Assistant",
+  "description": "An intelligent AI support assistant that answers questions based on a provided knowledge base, ensuring responses are accurate and contextually grounded.",
+  "requestFramePermissions": []
+}

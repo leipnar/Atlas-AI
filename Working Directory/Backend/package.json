@@ -1,0 +1,72 @@
+{
+  "name": "atlas-ai-backend",
+  "version": "1.0.0",
+  "description": "Atlas AI Backend API Server",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "build": "echo 'No build step required for Node.js'",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch --passWithNoTests",
+    "test:coverage": "jest --coverage --passWithNoTests",
+    "lint": "eslint src/ --ext .js,.ts",
+    "lint:fix": "eslint src/ --ext .js,.ts --fix",
+    "format": "prettier --write \"src/**/*.{js,ts,json}\"",
+    "check": "npm run lint && npm run test",
+    "db:migrate": "node src/scripts/migrate.js",
+    "db:seed": "node src/scripts/seed.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0",
+    "cors": "^2.8.5",
+    "helmet": "^6.1.5",
+    "dotenv": "^16.3.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express-rate-limit": "^6.10.0",
+    "express-session": "^1.17.3",
+    "connect-mongo": "^5.0.0",
+    "multer": "^1.4.5",
+    "express-validator": "^7.0.1",
+    "morgan": "^1.10.0",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "express-slow-down": "^1.6.0",
+    "hpp": "^0.2.3",
+    "express-mongo-sanitize": "^2.2.0",
+    "xss": "^1.0.14"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3",
+    "eslint": "^8.50.0",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "prettier": "^3.0.3",
+    "@types/jest": "^29.5.5",
+    "mongodb-memory-server": "^8.16.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "express",
+    "mongodb",
+    "api",
+    "backend",
+    "ai-assistant",
+    "rest-api"
+  ],
+  "author": "Atlas AI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/atlas-ai.git",
+    "directory": "Backend"
+  }
+}

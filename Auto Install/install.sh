@@ -676,7 +676,7 @@ install_mongodb() {
                 log "Downloading libssl1.1 from Ubuntu 20.04 repositories..."
                 if wget -q http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb -O /tmp/libssl1.1.deb; then
                     log "Installing libssl1.1 compatibility package..."
-                    if dpkg -i /tmp/libssl1.1.deb 2>&1 | tee -a "$LOG_FILE"; then
+                    if dpkg -i /tmp/libssl1.1.deb 2>&1 | tee -a "$INSTALL_LOG"; then
                         log "libssl1.1 compatibility package installed successfully"
                     else
                         warn "libssl1.1 installation had issues, but continuing..."
@@ -687,7 +687,7 @@ install_mongodb() {
                     # Alternative: try to install from backports if available
                     echo "deb http://security.ubuntu.com/ubuntu focal-security main" >> /etc/apt/sources.list.d/focal-security.list
                     apt-get update
-                    apt-get install -y libssl1.1 2>&1 | tee -a "$LOG_FILE" || warn "Could not install libssl1.1 compatibility"
+                    apt-get install -y libssl1.1 2>&1 | tee -a "$INSTALL_LOG" || warn "Could not install libssl1.1 compatibility"
                 fi
             fi
 
@@ -710,7 +710,7 @@ install_mongodb() {
 
             # Try to install MongoDB with error handling
             log "Attempting to install MongoDB 6.0..."
-            if ! apt-get install -y mongodb-org 2>&1 | tee -a "$LOG_FILE"; then
+            if ! apt-get install -y mongodb-org 2>&1 | tee -a "$INSTALL_LOG"; then
                 warn "Failed to install MongoDB 6.0, checking dependencies and trying fallback installation..."
 
                 # Check if libssl1.1 is available
@@ -723,7 +723,7 @@ install_mongodb() {
                         log "Downloading libssl1.1 from Ubuntu 20.04 repositories..."
                         if wget -q http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb -O /tmp/libssl1.1.deb; then
                             log "Installing libssl1.1 compatibility package..."
-                            if dpkg -i /tmp/libssl1.1.deb 2>&1 | tee -a "$LOG_FILE"; then
+                            if dpkg -i /tmp/libssl1.1.deb 2>&1 | tee -a "$INSTALL_LOG"; then
                                 log "libssl1.1 compatibility package installed successfully"
                             else
                                 warn "libssl1.1 installation had issues, but continuing..."
@@ -737,13 +737,13 @@ install_mongodb() {
 
                 # Retry MongoDB installation
                 log "Retrying MongoDB installation..."
-                if ! apt-get install -y mongodb-org 2>&1 | tee -a "$LOG_FILE"; then
+                if ! apt-get install -y mongodb-org 2>&1 | tee -a "$INSTALL_LOG"; then
                     # Final fallback: try to force install despite dependency warnings
                     warn "Standard installation failed, attempting force installation..."
-                    apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages mongodb-org 2>&1 | tee -a "$LOG_FILE"
+                    apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages mongodb-org 2>&1 | tee -a "$INSTALL_LOG"
 
                     if [[ $? -ne 0 ]]; then
-                        fatal "MongoDB installation failed. Check $LOG_FILE for details. System: Ubuntu $UBUNTU_VERSION"
+                        fatal "MongoDB installation failed. Check $INSTALL_LOG for details. System: Ubuntu $UBUNTU_VERSION"
                     fi
                 fi
             fi

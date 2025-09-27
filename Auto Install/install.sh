@@ -832,7 +832,7 @@ setup_backend() {
     cd "$INSTALL_DIR/Back"
 
     # Install dependencies
-    npm ci --production
+    npm install --production
 
     # Create environment file
     cat > .env << EOF
@@ -876,7 +876,7 @@ setup_frontend() {
     cd "$INSTALL_DIR/Front"
 
     # Install dependencies
-    npm ci --production
+    npm install --production
 
     # Build the application
     npm run build
@@ -1310,12 +1310,12 @@ git pull origin main
 
 # Update backend
 cd "\$INSTALL_DIR/Back"
-npm ci --production
+npm install --production
 npm run build
 
 # Update frontend
 cd "\$INSTALL_DIR/Front"
-npm ci --production
+npm install --production
 npm run build
 cp -r dist/* /var/www/atlas-ai/ || cp -r build/* /var/www/atlas-ai/
 

@@ -18,7 +18,7 @@ This comprehensive guide will walk you through deploying Atlas AI on a VPS using
 ## 🖥️ VPS Requirements
 
 ### Minimum Requirements
-- **OS**: Ubuntu 18.04+, CentOS 7+, or Debian 9+
+- **OS**: Ubuntu 18.04+, Debian 9+, CentOS 7+, RHEL 7+, Fedora 35+, Rocky Linux 8+, or AlmaLinux 8+
 - **RAM**: 2GB (4GB recommended for production)
 - **Storage**: 20GB SSD (50GB+ recommended)
 - **CPU**: 1 vCPU (2+ vCPUs recommended)
@@ -85,8 +85,11 @@ sudo su -
 # Ubuntu/Debian
 apt update && apt upgrade -y
 
-# CentOS/RHEL
+# CentOS/RHEL 7
 yum update -y
+
+# CentOS/RHEL 8+, Fedora, Rocky Linux, AlmaLinux
+dnf update -y
 ```
 
 #### Create Non-Root User (Optional but Recommended):
@@ -128,7 +131,9 @@ ufw allow 80
 ufw allow 443
 ufw enable
 
-# CentOS/RHEL
+# CentOS/RHEL/Fedora/Rocky Linux/AlmaLinux (using firewalld)
+systemctl enable firewalld
+systemctl start firewalld
 firewall-cmd --permanent --add-service=ssh
 firewall-cmd --permanent --add-service=http
 firewall-cmd --permanent --add-service=https

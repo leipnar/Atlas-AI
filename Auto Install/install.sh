@@ -295,7 +295,7 @@ detect_os() {
         OS_TYPE="debian"
         OS_VERSION=$(cat /etc/debian_version)
     else
-        fatal "Cannot detect operating system. Supported systems: Ubuntu, Debian, CentOS, RHEL"
+        fatal "Cannot detect operating system. Supported systems: Ubuntu, Debian, CentOS, RHEL, Fedora, Rocky Linux, AlmaLinux"
     fi
 
     case "$OS_TYPE" in
@@ -312,19 +312,29 @@ detect_os() {
             fi
             ;;
         centos|rhel)
-            PACKAGE_MANAGER="yum"
             if [[ "${OS_VERSION%%.*}" -lt 7 ]]; then
                 fatal "CentOS/RHEL 7 or higher is required. Found: $OS_VERSION"
             fi
             if [[ "${OS_VERSION%%.*}" -ge 8 ]]; then
                 PACKAGE_MANAGER="dnf"
+            else
+                PACKAGE_MANAGER="yum"
             fi
             ;;
         fedora)
             PACKAGE_MANAGER="dnf"
+            if [[ "${OS_VERSION%%.*}" -lt 35 ]]; then
+                warn "Fedora 35 or higher is recommended. Found: $OS_VERSION"
+            fi
+            ;;
+        rocky|almalinux)
+            PACKAGE_MANAGER="dnf"
+            if [[ "${OS_VERSION%%.*}" -lt 8 ]]; then
+                fatal "Rocky Linux/AlmaLinux 8 or higher is required. Found: $OS_VERSION"
+            fi
             ;;
         *)
-            fatal "Unsupported operating system: $OS_TYPE. Supported: Ubuntu 18.04+, Debian 9+, CentOS 7+, RHEL 7+"
+            fatal "Unsupported operating system: $OS_TYPE. Supported: Ubuntu 18.04+, Debian 9+, CentOS 7+, RHEL 7+, Fedora 35+, Rocky Linux 8+, AlmaLinux 8+"
             ;;
     esac
 
@@ -572,6 +582,9 @@ update_system() {
         yum)
             yum update -y
             ;;
+        dnf)
+            dnf update -y
+            ;;
     esac
 }
 
@@ -585,8 +598,18 @@ install_dependencies() {
                              build-essential openssl
             ;;
         yum)
+            # Enable EPEL repository for additional packages
+            yum install -y epel-release
             yum install -y curl wget git nginx certbot python3-certbot-nginx \
-                          firewalld fail2ban htop unzip openssl-devel gcc-c++ make
+                          firewalld fail2ban htop unzip openssl-devel gcc-c++ make \
+                          policycoreutils-python-utils
+            ;;
+        dnf)
+            # Enable EPEL repository for additional packages
+            dnf install -y epel-release
+            dnf install -y curl wget git nginx certbot python3-certbot-nginx \
+                          firewalld fail2ban htop unzip openssl-devel gcc-c++ make \
+                          policycoreutils-python-utils
             ;;
     esac
 }
@@ -594,15 +617,21 @@ install_dependencies() {
 install_nodejs() {
     log "Installing Node.js..."
 
-    # Install Node.js 18.x LTS
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-
     case "$PACKAGE_MANAGER" in
         apt)
+            # Install Node.js 18.x LTS for Debian/Ubuntu
+            curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
             apt-get install -y nodejs
             ;;
         yum)
+            # Install Node.js 18.x LTS for CentOS/RHEL 7
+            curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
             yum install -y nodejs npm
+            ;;
+        dnf)
+            # Install Node.js 18.x LTS for Fedora/RHEL 8+/Rocky/Alma
+            curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+            dnf install -y nodejs npm
             ;;
     esac
 
@@ -631,7 +660,7 @@ install_mongodb() {
             apt-get update
             apt-get install -y mongodb-org
             ;;
-        centos|rhel|fedora)
+        centos|rhel|fedora|rocky|almalinux)
             # Add MongoDB repository
             cat > /etc/yum.repos.d/mongodb-org-6.0.repo << EOF
 [mongodb-org-6.0]
@@ -642,7 +671,14 @@ enabled=1
 gpgkey=https://www.mongodb.org/static/pgp/server-6.0.asc
 EOF
 
-            yum install -y mongodb-org
+            case "$PACKAGE_MANAGER" in
+                yum)
+                    yum install -y mongodb-org
+                    ;;
+                dnf)
+                    dnf install -y mongodb-org
+                    ;;
+            esac
             ;;
     esac
 
@@ -958,7 +994,7 @@ configure_firewall() {
 
             ufw --force enable
             ;;
-        centos|rhel|fedora)
+        centos|rhel|fedora|rocky|almalinux)
             # Configure firewalld
             systemctl enable firewalld
             systemctl start firewalld
@@ -966,6 +1002,10 @@ configure_firewall() {
             firewall-cmd --permanent --add-service=ssh
             firewall-cmd --permanent --add-service=http
             firewall-cmd --permanent --add-service=https
+
+            # Allow MongoDB only from localhost (port 27017)
+            firewall-cmd --permanent --add-rich-rule="rule family=ipv4 source address=127.0.0.1 port protocol=tcp port=27017 accept"
+
             firewall-cmd --reload
             ;;
     esac

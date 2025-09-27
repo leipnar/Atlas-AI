@@ -62,7 +62,7 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 ## 📋 Prerequisites
 
 ### System Requirements
-- **Operating System**: Ubuntu 18.04+, CentOS 7+, or Debian 9+
+- **Operating System**: Ubuntu 18.04+, Debian 9+, CentOS 7+, RHEL 7+, Fedora 35+, Rocky Linux 8+, or AlmaLinux 8+
 - **RAM**: Minimum 2GB (4GB recommended)
 - **Storage**: Minimum 10GB free space
 - **Network**: Internet connection for package downloads

@@ -2,8 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
-[![GitHub release](https://img.shields.io/github/release/YOUR_USERNAME/atlas-ai.svg)](https://github.com/YOUR_USERNAME/atlas-ai/releases)
-[![Auto Install](https://img.shields.io/badge/deployment-one--command-blue.svg)](https://github.com/YOUR_USERNAME/atlas-ai#one-command-deployment)
+[![GitHub release](https://img.shields.io/github/release/atlas-ai-team/atlas-ai.svg)](https://github.com/atlas-ai-team/atlas-ai/releases)
+[![Auto Install](https://img.shields.io/badge/deployment-one--command-blue.svg)](https://github.com/atlas-ai-team/atlas-ai#one-command-deployment)
 
 > **One-Command Deployment** | **Production Ready** | **Fully Automated** | **Secure by Default**
 
@@ -14,7 +14,7 @@ Atlas AI is a comprehensive AI-powered support assistant with complete auto-depl
 Deploy Atlas AI on any VPS with a single command:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/atlas-ai-team/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 ```
 
 **That's it!** Your Atlas AI instance will be running at `https://yourdomain.com` with:
@@ -75,12 +75,12 @@ curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/atlas-ai/main/Auto%20I
 
 ### Basic Installation
 ```bash
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/atlas-ai-team/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 ```
 
 ### Advanced Installation
 ```bash
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/atlas-ai/main/Auto%20Install/install.sh | bash -s -- \
+curl -sSL https://raw.githubusercontent.com/atlas-ai-team/atlas-ai/main/Auto%20Install/install.sh | bash -s -- \
   --domain=atlas.example.com \
   --email=admin@example.com \
   --environment=production \
@@ -122,7 +122,7 @@ sudo su -
 
 ### 3. Run Installation
 ```bash
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/atlas-ai-team/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 ```
 
 ### 4. Access Your Application
@@ -218,7 +218,7 @@ Internet
 
 1. **Clone Repository**:
 ```bash
-git clone https://github.com/YOUR_USERNAME/atlas-ai.git
+git clone https://github.com/atlas-ai-team/atlas-ai.git
 cd atlas-ai
 ```
 
@@ -292,7 +292,7 @@ We welcome contributions! Please see our [Contributing Guidelines](docs/CONTRIBU
 ## 🛡️ Security
 
 ### Reporting Security Issues
-Please report security vulnerabilities to [security@example.com](mailto:security@example.com) or create a private security advisory on GitHub.
+Please report security vulnerabilities to [security@atlas-ai-assistant.com](mailto:security@atlas-ai-assistant.com) or create a private security advisory on GitHub.
 
 ### Security Features
 - SSL/TLS encryption with modern cipher suites
@@ -389,12 +389,12 @@ See [CHANGELOG.md](Auto%20Install/CHANGELOG.md) for detailed version history and
 ## 📞 Support
 
 ### Community Support
-- [GitHub Issues](https://github.com/YOUR_USERNAME/atlas-ai/issues) - Bug reports and feature requests
-- [GitHub Discussions](https://github.com/YOUR_USERNAME/atlas-ai/discussions) - Community Q&A
+- [GitHub Issues](https://github.com/atlas-ai-team/atlas-ai/issues) - Bug reports and feature requests
+- [GitHub Discussions](https://github.com/atlas-ai-team/atlas-ai/discussions) - Community Q&A
 - [Documentation](docs/) - Comprehensive guides and tutorials
 
 ### Professional Support
-- Email: [support@example.com](mailto:support@example.com)
+- Email: [support@atlas-ai-assistant.com](mailto:support@atlas-ai-assistant.com)
 - Priority support available for enterprise users
 - Custom deployment and configuration services
 
@@ -416,8 +416,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <p>Get your AI support assistant running in production with just one command.</p>
 
   ```bash
-  curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+  curl -sSL https://raw.githubusercontent.com/atlas-ai-team/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
   ```
 
-  <p><a href="VPS_DEPLOYMENT_GUIDE_AutoInstall.md">📖 Full Deployment Guide</a> | <a href="https://github.com/YOUR_USERNAME/atlas-ai/releases">📦 Latest Release</a> | <a href="docs/">📚 Documentation</a></p>
+  <p><a href="VPS_DEPLOYMENT_GUIDE_AutoInstall.md">📖 Full Deployment Guide</a> | <a href="https://github.com/atlas-ai-team/atlas-ai/releases">📦 Latest Release</a> | <a href="docs/">📚 Documentation</a></p>
 </div>

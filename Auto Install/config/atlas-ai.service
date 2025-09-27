@@ -1,6 +1,6 @@
 [Unit]
 Description=Atlas AI Support Assistant Backend Service
-Documentation=https://github.com/your-username/atlas-ai
+Documentation=https://github.com/leipnar/Atlas-AI
 After=network.target mongod.service
 Wants=mongod.service
 

@@ -1,6 +1,6 @@
 [Unit]
 Description=Atlas AI Support Assistant Backup Timer
-Documentation=https://github.com/your-username/atlas-ai
+Documentation=https://github.com/leipnar/Atlas-AI
 Requires=atlas-ai-backup.service
 
 [Timer]

@@ -181,7 +181,7 @@ Database migrations are handled automatically during deployment.
 ### Using Auto-Install
 The backend is automatically configured when using the auto-install script:
 ```bash
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 ```
 
 ## Monitoring

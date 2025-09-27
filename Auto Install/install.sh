@@ -13,7 +13,7 @@
 # - Monitoring: Basic health checks and logging
 #
 # Usage:
-# curl -sSL https://raw.githubusercontent.com/[username]/[repo]/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+# curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 #
 # Author: Atlas AI Team
 # Version: 1.0.0
@@ -31,7 +31,7 @@ readonly NC='\033[0m' # No Color
 # Default configuration
 readonly SCRIPT_VERSION="1.0.0"
 readonly APP_NAME="atlas-ai"
-readonly REPO_URL="https://github.com/your-username/atlas-ai.git"
+readonly REPO_URL="https://github.com/leipnar/Atlas-AI.git"
 readonly INSTALL_DIR="/opt/atlas-ai"
 readonly LOG_DIR="/var/log/atlas-ai"
 readonly BACKUP_DIR="/var/backups/atlas-ai"
@@ -67,14 +67,35 @@ ROLLBACK_COMMANDS=()
 ################################################################################
 
 log() {
+    # Ensure log directory exists before logging
+    if [[ ! -d "$LOG_DIR" ]]; then
+        sudo mkdir -p "$LOG_DIR" 2>/dev/null || {
+            echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')] $1${NC}"
+            return
+        }
+    fi
     echo -e "${GREEN}[$(date +'%Y-%m-%d %H:%M:%S')] $1${NC}" | tee -a "$INSTALL_LOG"
 }
 
 warn() {
+    # Ensure log directory exists before logging
+    if [[ ! -d "$LOG_DIR" ]]; then
+        sudo mkdir -p "$LOG_DIR" 2>/dev/null || {
+            echo -e "${YELLOW}[$(date +'%Y-%m-%d %H:%M:%S')] WARNING: $1${NC}"
+            return
+        }
+    fi
     echo -e "${YELLOW}[$(date +'%Y-%m-%d %H:%M:%S')] WARNING: $1${NC}" | tee -a "$INSTALL_LOG"
 }
 
 error() {
+    # Ensure log directory exists before logging
+    if [[ ! -d "$LOG_DIR" ]]; then
+        sudo mkdir -p "$LOG_DIR" 2>/dev/null || {
+            echo -e "${RED}[$(date +'%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}"
+            return
+        }
+    fi
     echo -e "${RED}[$(date +'%Y-%m-%d %H:%M:%S')] ERROR: $1${NC}" | tee -a "$ERROR_LOG"
 }
 
@@ -456,12 +477,17 @@ parse_arguments() {
 setup_directories() {
     log "Setting up directories..."
 
-    mkdir -p "$INSTALL_DIR" "$LOG_DIR" "$BACKUP_DIR" "$CONFIG_DIR"
-    mkdir -p /var/www/atlas-ai
+    # Create directories with proper error handling
+    sudo mkdir -p "$INSTALL_DIR" "$LOG_DIR" "$BACKUP_DIR" "$CONFIG_DIR" || fatal "Failed to create system directories"
+    sudo mkdir -p /var/www/atlas-ai || fatal "Failed to create web directory"
 
     # Set proper permissions
-    chown -R www-data:www-data /var/www/atlas-ai
-    chmod -R 755 /var/www/atlas-ai
+    sudo chown -R www-data:www-data /var/www/atlas-ai || warn "Failed to set web directory ownership"
+    sudo chmod -R 755 /var/www/atlas-ai || warn "Failed to set web directory permissions"
+
+    # Set permissions for log directory
+    sudo chown -R root:adm "$LOG_DIR" || warn "Failed to set log directory ownership"
+    sudo chmod -R 755 "$LOG_DIR" || warn "Failed to set log directory permissions"
 
     add_rollback "rm -rf $INSTALL_DIR $LOG_DIR $BACKUP_DIR $CONFIG_DIR /var/www/atlas-ai"
 }

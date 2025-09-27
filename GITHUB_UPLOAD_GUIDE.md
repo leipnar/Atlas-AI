@@ -198,12 +198,12 @@ After creating the repository:
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/atlas-ai.git"
+    "url": "https://github.com/leipnar/Atlas-AI.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_USERNAME/atlas-ai/issues"
+    "url": "https://github.com/leipnar/Atlas-AI/issues"
   },
-  "homepage": "https://github.com/YOUR_USERNAME/atlas-ai#readme",
+  "homepage": "https://github.com/leipnar/Atlas-AI#readme",
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
@@ -447,7 +447,7 @@ cd /home/carvilia/Documents/Projects/Atlas
 git init
 
 # Add GitHub remote (replace with your repository URL)
-git remote add origin https://github.com/YOUR_USERNAME/atlas-ai.git
+git remote add origin https://github.com/leipnar/Atlas-AI.git
 ```
 
 ### Step 2: Configure Git User
@@ -574,7 +574,7 @@ git push origin v1.0.0
 After uploading, configure your repository:
 
 1. **Go to Repository Settings**:
-   - Navigate to `https://github.com/YOUR_USERNAME/atlas-ai/settings`
+   - Navigate to `https://github.com/leipnar/Atlas-AI/settings`
 
 2. **General Settings**:
    - Update description: "Atlas AI Support Assistant - Complete auto-deployment solution with Node.js backend, React frontend, MongoDB, and production-ready infrastructure"
@@ -692,10 +692,10 @@ After upload, test the installation command:
 
 ```bash
 # Test the installation command
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/atlas-ai/main/Auto%20Install/install.sh | bash -s -- --help
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --help
 
 # Verify the command works
-curl -sSL https://raw.githubusercontent.com/YOUR_USERNAME/atlas-ai/main/Auto%20Install/install.sh | head -20
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | head -20
 ```
 
 ### Step 3: Community Setup

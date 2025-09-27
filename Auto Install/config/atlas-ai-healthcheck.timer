@@ -1,6 +1,6 @@
 [Unit]
 Description=Atlas AI Support Assistant Health Check Timer
-Documentation=https://github.com/your-username/atlas-ai
+Documentation=https://github.com/leipnar/Atlas-AI
 Requires=atlas-ai-healthcheck.service
 
 [Timer]

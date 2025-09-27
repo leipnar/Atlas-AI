@@ -7,7 +7,7 @@ A comprehensive auto-installation system for the Atlas AI Support Assistant that
 Deploy Atlas AI with a single command:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/[username]/[repo]/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 ```
 
 ## 📋 Table of Contents
@@ -81,13 +81,13 @@ curl -sSL https://raw.githubusercontent.com/[username]/[repo]/main/Auto%20Instal
 ### Basic Installation
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/[username]/[repo]/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 ```
 
 ### Advanced Installation
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/[username]/[repo]/main/Auto%20Install/install.sh | bash -s -- \
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- \
   --domain=yourdomain.com \
   --email=your@email.com \
   --db-name=my_atlas \
@@ -327,7 +327,7 @@ Add to crontab for automated maintenance:
 tail -f /var/log/atlas-ai/install.log
 
 # Verify system requirements
-curl -sSL https://raw.githubusercontent.com/[username]/[repo]/main/Auto%20Install/scripts/check-requirements.sh | bash
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/scripts/check-requirements.sh | bash
 ```
 
 #### Service Not Starting

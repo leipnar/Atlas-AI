@@ -13,6 +13,10 @@
 # - Monitoring: Basic health checks and logging
 #
 # Usage:
+# Interactive setup (recommended):
+# curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
+#
+# With command line parameters:
 # curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 #
 # Author: Atlas AI Team
@@ -198,6 +202,72 @@ check_internet() {
     log "Internet connectivity confirmed"
 }
 
+prompt_user_input() {
+    echo
+    echo -e "${BLUE}==================================================${NC}"
+    echo -e "${GREEN}   Welcome to Atlas AI Support Assistant Setup   ${NC}"
+    echo -e "${BLUE}==================================================${NC}"
+    echo
+    echo "This installer will set up a complete Atlas AI environment with:"
+    echo "• Node.js backend with MongoDB database"
+    echo "• React frontend application"
+    echo "• Nginx reverse proxy with SSL certificates"
+    echo "• PM2 process management and monitoring"
+    echo "• Automated backups and security hardening"
+    echo
+
+    # Prompt for domain if not provided via command line
+    if [[ -z "$DOMAIN" ]]; then
+        echo -e "${YELLOW}Please enter your domain information:${NC}"
+        while [[ -z "$DOMAIN" ]]; do
+            echo -n "Domain name (e.g., atlas.example.com): "
+            read -r DOMAIN
+            if [[ -z "$DOMAIN" ]]; then
+                echo -e "${RED}Domain is required. Please enter a valid domain name.${NC}"
+            elif [[ ! "$DOMAIN" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$ ]]; then
+                echo -e "${RED}Please enter a valid domain name (e.g., atlas.example.com)${NC}"
+                DOMAIN=""
+            fi
+        done
+    fi
+
+    # Prompt for email if not provided via command line
+    if [[ -z "$EMAIL" ]]; then
+        echo -n "Email address (for SSL certificates): "
+        while [[ -z "$EMAIL" ]]; do
+            read -r EMAIL
+            if [[ -z "$EMAIL" ]]; then
+                echo -e "${RED}Email is required. Please enter a valid email address.${NC}"
+                echo -n "Email address (for SSL certificates): "
+            elif [[ ! "$EMAIL" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+                echo -e "${RED}Please enter a valid email address.${NC}"
+                echo -n "Email address (for SSL certificates): "
+                EMAIL=""
+            fi
+        done
+    fi
+
+    echo
+    echo -e "${GREEN}Configuration Summary:${NC}"
+    echo "• Domain: $DOMAIN"
+    echo "• Email: $EMAIL"
+    echo "• Environment: $ENVIRONMENT"
+    echo
+
+    # Confirmation prompt
+    echo -e "${YELLOW}Do you want to proceed with the installation? (y/N):${NC}"
+    read -r -n 1 confirmation
+    echo
+
+    if [[ ! "$confirmation" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Installation cancelled by user.${NC}"
+        exit 0
+    fi
+
+    echo -e "${GREEN}Starting installation...${NC}"
+    echo
+}
+
 generate_password() {
     if command -v openssl >/dev/null 2>&1; then
         openssl rand -base64 32 | tr -d '=/+' | cut -c1-25
@@ -359,11 +429,12 @@ Atlas AI Support Assistant - Auto Installation Script v$SCRIPT_VERSION
 
 Usage: $0 [OPTIONS]
 
-Required Options:
-  --domain=DOMAIN          Domain name for the application
-  --email=EMAIL           Email address for SSL certificates
+Interactive Setup:
+  If domain and email are not provided via command line, you will be prompted to enter them interactively.
 
 Optional Options:
+  --domain=DOMAIN          Domain name for the application (prompted if not provided)
+  --email=EMAIL           Email address for SSL certificates (prompted if not provided)
   --db-password=PASSWORD   MongoDB password (auto-generated if not provided)
   --session-secret=SECRET  Session secret (auto-generated if not provided)
   --gemini-api-key=KEY    Google Gemini API key
@@ -376,6 +447,10 @@ Optional Options:
   --help                  Show this help message
 
 Examples:
+  # Interactive setup (recommended):
+  $0
+
+  # With command line parameters:
   $0 --domain=atlas.example.com --email=admin@example.com
   $0 --domain=atlas.example.com --email=admin@example.com --environment=staging --skip-ssl
 
@@ -440,14 +515,8 @@ parse_arguments() {
         esac
     done
 
-    # Validate required arguments
-    if [[ -z "$DOMAIN" ]]; then
-        fatal "Domain is required. Use --domain=your-domain.com"
-    fi
-
-    if [[ -z "$EMAIL" ]]; then
-        fatal "Email is required. Use --email=your@email.com"
-    fi
+    # Note: Domain and email validation moved to prompt_user_input function
+    # They can be provided via command line or prompted interactively
 
     # Generate passwords if not provided
     if [[ -z "$DB_PASSWORD" ]]; then
@@ -1244,13 +1313,24 @@ trap cleanup_on_error ERR
 ################################################################################
 
 main() {
+    # Check for help first (before requiring root)
+    for arg in "$@"; do
+        if [[ "$arg" == "--help" ]]; then
+            show_help
+            exit 0
+        fi
+    done
+
     # Initial setup
     check_root
     check_internet
     setup_directories
 
-    # Parse command line arguments
+    # Parse command line arguments first (to get any provided values)
     parse_arguments "$@"
+
+    # Prompt for missing required information interactively
+    prompt_user_input
 
     log "Starting Atlas AI Support Assistant installation v$SCRIPT_VERSION"
     log "Domain: $DOMAIN, Environment: $ENVIRONMENT"

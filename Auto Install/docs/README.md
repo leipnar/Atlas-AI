@@ -7,8 +7,10 @@ A comprehensive auto-installation system for the Atlas AI Support Assistant that
 Deploy Atlas AI with a single command:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
+
+*The installer will prompt you for your domain name and email address during setup.*
 
 ## 📋 Table of Contents
 
@@ -81,7 +83,7 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 ### Basic Installation
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
 
 ### Advanced Installation

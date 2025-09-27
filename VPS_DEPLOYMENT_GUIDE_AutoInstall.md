@@ -234,7 +234,7 @@ Before running the installation command, verify:
 Once all prerequisites are met, run the installation command:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
 
 ### Advanced Installation with Options
@@ -373,7 +373,7 @@ doctl compute droplet list
 
 # 3. Connect and install
 ssh root@DROPLET_IP
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
 
 #### DigitalOcean Specific Notes:
@@ -399,7 +399,7 @@ ssh -i YOUR_KEY.pem ubuntu@INSTANCE_IP
 sudo su -
 
 # 3. Install
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
 
 #### AWS Specific Considerations:
@@ -423,7 +423,7 @@ linode-cli linodes create \
 
 # 2. Connect and install
 ssh root@LINODE_IP
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
 
 ### Vultr Deployment
@@ -434,7 +434,7 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 # Create Ubuntu 22.04 server with 2GB+ RAM
 
 ssh root@VULTR_IP
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
 
 ## 🚨 Troubleshooting
@@ -521,7 +521,7 @@ sudo deluser atlas-ai
 sudo mongo admin --eval "db.dropDatabase()"
 
 # Re-run installation
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com --force
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --force
 ```
 
 ## 🔐 Security Hardening

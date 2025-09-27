@@ -14,7 +14,7 @@ Atlas AI is a comprehensive AI-powered support assistant with complete auto-depl
 Deploy Atlas AI on any VPS with a single command:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
 
 **That's it!** Your Atlas AI instance will be running at `https://yourdomain.com` with:
@@ -73,12 +73,13 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 
 ## 🔧 Installation Options
 
-### Basic Installation
+### Basic Installation (Interactive Setup)
 ```bash
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
+*The installer will prompt you for your domain name and email address.*
 
-### Advanced Installation
+### Advanced Installation (Command Line Parameters)
 ```bash
 curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- \
   --domain=atlas.example.com \
@@ -93,8 +94,8 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 
 | Parameter | Description | Required | Default |
 |-----------|-------------|----------|---------|
-| `--domain` | Your domain name | ✅ Yes | - |
-| `--email` | Email for SSL certificates | ✅ Yes | - |
+| `--domain` | Your domain name | No (prompted if not provided) | - |
+| `--email` | Email for SSL certificates | No (prompted if not provided) | - |
 | `--environment` | Environment type | No | `production` |
 | `--db-password` | MongoDB password | No | Auto-generated |
 | `--session-secret` | Session secret key | No | Auto-generated |
@@ -122,7 +123,7 @@ sudo su -
 
 ### 3. Run Installation
 ```bash
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 ```
 
 ### 4. Access Your Application
@@ -416,7 +417,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <p>Get your AI support assistant running in production with just one command.</p>
 
   ```bash
-  curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+  curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
   ```
 
   <p><a href="VPS_DEPLOYMENT_GUIDE_AutoInstall.md">📖 Full Deployment Guide</a> | <a href="https://github.com/leipnar/Atlas-AI/releases">📦 Latest Release</a> | <a href="docs/">📚 Documentation</a></p>

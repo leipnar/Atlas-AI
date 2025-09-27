@@ -16,7 +16,7 @@
 # Interactive setup (recommended):
 # curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
 #
-# With command line parameters:
+# With command line parameters (optional):
 # curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 #
 # Author: Atlas AI Team

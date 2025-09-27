@@ -4,16 +4,8 @@ A comprehensive auto-installation system for the Atlas AI Support Assistant that
 
 ## 🚀 Quick Start
 
-Deploy Atlas AI with interactive setup or one-command installation:
+Deploy Atlas AI with a single command:
 
-**Interactive Setup (Recommended):**
-```bash
-# Download and run for interactive prompts
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh -o install.sh
-chmod +x install.sh && sudo ./install.sh
-```
-
-**One-Command Installation:**
 ```bash
 curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 ```
@@ -336,6 +328,19 @@ tail -f /var/log/atlas-ai/install.log
 
 # Verify system requirements
 curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/scripts/check-requirements.sh | bash
+```
+
+#### MongoDB SSL Library Issues (Ubuntu 24.04+)
+The installer automatically handles libssl1.1 compatibility for newer Ubuntu versions:
+```bash
+# If MongoDB fails to install due to libssl1.1 dependency:
+# 1. The installer automatically downloads and installs libssl1.1 compatibility package
+# 2. Uses appropriate Ubuntu codename for MongoDB repository (jammy for 22.04+)
+# 3. Fallback installation with dependency resolution
+
+# Manual fix if needed:
+wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
+sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb
 ```
 
 #### Service Not Starting

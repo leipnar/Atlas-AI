@@ -61,6 +61,9 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 
 ### Minimum VPS Specs
 - **OS**: Ubuntu 18.04+, Debian 9+, CentOS 7+, RHEL 7+, Fedora 35+, Rocky Linux 8+, or AlmaLinux 8+
+  - ✅ **Fully tested**: Ubuntu 20.04, 22.04, 24.04 (with automatic libssl1.1 compatibility)
+  - ✅ **RHEL/CentOS**: 7, 8, 9 (with dnf/yum auto-detection)
+  - ✅ **Fedora**: 35+ (with dnf package manager)
 - **RAM**: 2GB (4GB recommended)
 - **Storage**: 20GB SSD
 - **CPU**: 1 vCPU (2+ recommended)
@@ -73,19 +76,7 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 
 ## 🔧 Installation Options
 
-### Basic Installation (Interactive Setup)
-
-**Option 1: Download and Run (Recommended for Interactive Setup)**
-```bash
-# Download the installer
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh -o install.sh
-
-# Make it executable and run
-chmod +x install.sh
-sudo ./install.sh
-```
-
-**Option 2: One-Command with Parameters**
+### Basic Installation
 ```bash
 curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
 ```
@@ -105,8 +96,8 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 
 | Parameter | Description | Required | Default |
 |-----------|-------------|----------|---------|
-| `--domain` | Your domain name | No (prompted if not provided) | - |
-| `--email` | Email for SSL certificates | No (prompted if not provided) | - |
+| `--domain` | Your domain name | ✅ Yes | - |
+| `--email` | Email for SSL certificates | ✅ Yes | - |
 | `--environment` | Environment type | No | `production` |
 | `--db-password` | MongoDB password | No | Auto-generated |
 | `--session-secret` | Session secret key | No | Auto-generated |

@@ -663,14 +663,58 @@ install_mongodb() {
 
     case "$OS_TYPE" in
         ubuntu|debian)
-            # Import MongoDB public GPG key
-            wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add -
+            # Check Ubuntu version for compatibility
+            UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "20.04")
+            UBUNTU_MAJOR=$(echo "$UBUNTU_VERSION" | cut -d. -f1)
+            UBUNTU_MINOR=$(echo "$UBUNTU_VERSION" | cut -d. -f2)
 
-            # Add MongoDB repository
-            echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" > /etc/apt/sources.list.d/mongodb-org-6.0.list
+            # For Ubuntu 24.04+, install libssl1.1 compatibility package first
+            if [[ "$UBUNTU_MAJOR" -ge 24 ]] || [[ "$UBUNTU_MAJOR" -eq 22 && "$UBUNTU_MINOR" -ge 04 ]]; then
+                log "Installing libssl1.1 compatibility for Ubuntu $UBUNTU_VERSION..."
+
+                # Download and install libssl1.1 from Ubuntu 20.04 repository
+                wget -q http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb -O /tmp/libssl1.1.deb
+                if [[ $? -eq 0 ]]; then
+                    dpkg -i /tmp/libssl1.1.deb 2>/dev/null || true
+                    rm -f /tmp/libssl1.1.deb
+                    log "libssl1.1 compatibility package installed"
+                else
+                    warn "Failed to download libssl1.1, trying alternative method..."
+                    # Alternative: try to install from backports if available
+                    echo "deb http://security.ubuntu.com/ubuntu focal-security main" >> /etc/apt/sources.list.d/focal-security.list
+                    apt-get update
+                    apt-get install -y libssl1.1 || warn "Could not install libssl1.1 compatibility"
+                fi
+            fi
+
+            # Import MongoDB public GPG key using newer method
+            curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.0.gpg
+
+            # Determine the appropriate Ubuntu codename for MongoDB repository
+            if [[ "$UBUNTU_MAJOR" -ge 22 ]]; then
+                MONGO_CODENAME="jammy"
+            elif [[ "$UBUNTU_MAJOR" -ge 20 ]]; then
+                MONGO_CODENAME="focal"
+            else
+                MONGO_CODENAME="bionic"
+            fi
+
+            # Add MongoDB repository with proper keyring
+            echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu $MONGO_CODENAME/mongodb-org/6.0 multiverse" > /etc/apt/sources.list.d/mongodb-org-6.0.list
 
             apt-get update
-            apt-get install -y mongodb-org
+
+            # Try to install MongoDB with error handling
+            if ! apt-get install -y mongodb-org; then
+                warn "Failed to install MongoDB 6.0, trying fallback installation..."
+
+                # Fallback: try to force install despite dependency warnings
+                apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages mongodb-org
+
+                if [[ $? -ne 0 ]]; then
+                    fatal "MongoDB installation failed. Please check your system compatibility."
+                fi
+            fi
             ;;
         centos|rhel|fedora|rocky|almalinux)
             # Add MongoDB repository

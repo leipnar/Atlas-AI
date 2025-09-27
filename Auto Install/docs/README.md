@@ -4,13 +4,19 @@ A comprehensive auto-installation system for the Atlas AI Support Assistant that
 
 ## 🚀 Quick Start
 
-Deploy Atlas AI with a single command:
+Deploy Atlas AI with interactive setup or one-command installation:
 
+**Interactive Setup (Recommended):**
 ```bash
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
+# Download and run for interactive prompts
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh -o install.sh
+chmod +x install.sh && sudo ./install.sh
 ```
 
-*The installer will prompt you for your domain name and email address during setup.*
+**One-Command Installation:**
+```bash
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+```
 
 ## 📋 Table of Contents
 

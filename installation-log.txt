@@ -1,127 +1,28 @@
-root@Atlas-test-env:~# curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=atlas.leipnar.com --email=ict@leipnar.com
-[2025-09-27 17:09:59] Checking internet connectivity...
-[2025-09-27 17:09:59] Internet connectivity confirmed
-[2025-09-27 17:09:59] Setting up directories...
-[2025-09-27 17:10:00] Generated database password
-[2025-09-27 17:10:00] Generated session secret
-[2025-09-27 17:10:00] Starting Atlas AI Support Assistant installation v1.0.0
-[2025-09-27 17:10:00] Domain: atlas.leipnar.com, Environment: production
-[2025-09-27 17:10:00] Detecting operating system...
-[2025-09-27 17:10:00] Detected OS: ubuntu 24.04 (Package manager: apt)
-[2025-09-27 17:10:00] Updating system packages...
-Hit:1 https://deb.nodesource.com/node_18.x nodistro InRelease
-Hit:2 https://mirror.hetzner.com/ubuntu/packages noble InRelease
-Get:3 https://mirror.hetzner.com/ubuntu/packages noble-updates InRelease [126 kB]
-Get:4 https://mirror.hetzner.com/ubuntu/packages noble-backports InRelease [126 kB]
-Get:5 https://mirror.hetzner.com/ubuntu/security noble-security InRelease [126 kB]
-Get:6 https://mirror.hetzner.com/ubuntu/packages noble-updates/main amd64 Packages [1,443 kB]
-Hit:7 https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 InRelease
-Get:8 https://mirror.hetzner.com/ubuntu/packages noble-updates/main amd64 c-n-f Metadata [15.3 kB]
-Get:9 https://mirror.hetzner.com/ubuntu/packages noble-updates/universe amd64 Packages [1,485 kB]
-Get:10 https://mirror.hetzner.com/ubuntu/packages noble-updates/universe amd64 c-n-f Metadata [31.0 kB]
-Fetched 3,353 kB in 1s (2,325 kB/s)                         
-Reading package lists... Done
-W: https://repo.mongodb.org/apt/ubuntu/dists/focal/mongodb-org/6.0/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-Calculating upgrade... Done
-The following upgrades have been deferred due to phasing:
-  open-vm-tools ubuntu-drivers-common
-The following packages have been kept back:
-  linux-image-virtual
-0 upgraded, 0 newly installed, 0 to remove and 3 not upgraded.
-N: Some packages may have been kept back due to phasing.
-[2025-09-27 17:10:09] Installing system dependencies...
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-curl is already the newest version (8.5.0-2ubuntu10.6).
-wget is already the newest version (1.21.4-1ubuntu4.1).
-git is already the newest version (1:2.43.0-1ubuntu7.3).
-nginx is already the newest version (1.24.0-2ubuntu7.5).
-certbot is already the newest version (2.9.0-1).
-python3-certbot-nginx is already the newest version (2.9.0-1).
-ufw is already the newest version (0.36.2-6).
-fail2ban is already the newest version (1.0.2-3ubuntu0.1).
-htop is already the newest version (3.3.0-4build1).
-unzip is already the newest version (6.0-28ubuntu4.1).
-software-properties-common is already the newest version (0.99.49.3).
-build-essential is already the newest version (12.10ubuntu1).
-openssl is already the newest version (3.0.13-0ubuntu3.5).
-0 upgraded, 0 newly installed, 0 to remove and 3 not upgraded.
-[2025-09-27 17:10:10] Installing Node.js...
-2025-09-27 17:10:10 - Installing pre-requisites
-Hit:1 https://mirror.hetzner.com/ubuntu/packages noble InRelease
-Hit:2 https://deb.nodesource.com/node_18.x nodistro InRelease
-Hit:3 https://mirror.hetzner.com/ubuntu/packages noble-updates InRelease
-Hit:4 https://mirror.hetzner.com/ubuntu/packages noble-backports InRelease
-Hit:5 https://mirror.hetzner.com/ubuntu/security noble-security InRelease
-Hit:6 https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 InRelease
-Reading package lists... Done
-W: https://repo.mongodb.org/apt/ubuntu/dists/focal/mongodb-org/6.0/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-apt-transport-https is already the newest version (2.8.3).
-ca-certificates is already the newest version (20240203).
-curl is already the newest version (8.5.0-2ubuntu10.6).
-gnupg is already the newest version (2.4.4-2ubuntu17.3).
-0 upgraded, 0 newly installed, 0 to remove and 3 not upgraded.
-Hit:1 https://mirror.hetzner.com/ubuntu/packages noble InRelease
-Hit:2 https://deb.nodesource.com/node_18.x nodistro InRelease
-Hit:3 https://mirror.hetzner.com/ubuntu/packages noble-updates InRelease
-Hit:4 https://mirror.hetzner.com/ubuntu/packages noble-backports InRelease
-Hit:5 https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 InRelease
-Hit:6 https://mirror.hetzner.com/ubuntu/security noble-security InRelease
-Reading package lists... Done
-W: https://repo.mongodb.org/apt/ubuntu/dists/focal/mongodb-org/6.0/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
-2025-09-27 17:10:17 - Repository configured successfully.
-2025-09-27 17:10:17 - To install Node.js, run: apt-get install nodejs -y
-2025-09-27 17:10:17 - You can use N|solid Runtime as a node.js alternative
-2025-09-27 17:10:17 - To install N|solid Runtime, run: apt-get install nsolid -y 
+root@Atlas-test-env:~# curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
+[2025-09-27 17:47:55] Checking internet connectivity...
+[2025-09-27 17:47:55] Internet connectivity confirmed
+[2025-09-27 17:47:55] Setting up directories...
+[2025-09-27 17:47:55] Generated database password
+[2025-09-27 17:47:55] Generated session secret
 
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-nodejs is already the newest version (18.20.8-1nodesource1).
-0 upgraded, 0 newly installed, 0 to remove and 3 not upgraded.
+==================================================
+   Welcome to Atlas AI Support Assistant Setup   
+==================================================
 
-changed 133 packages in 11s
+This installer will set up a complete Atlas AI environment with:
+• Node.js backend with MongoDB database
+• React frontend application
+• Nginx reverse proxy with SSL certificates
+• PM2 process management and monitoring
+• Automated backups and security hardening
 
-13 packages are looking for funding
-  run `npm fund` for details
-[2025-09-27 17:10:30] Installed Node.js v18.20.8, npm 10.8.2, PM2 6.0.13
-[2025-09-27 17:10:30] Installing MongoDB...
-Warning: apt-key is deprecated. Manage keyring files in trusted.gpg.d instead (see apt-key(8)).
-OK
-Hit:1 https://mirror.hetzner.com/ubuntu/packages noble InRelease
-Hit:2 https://deb.nodesource.com/node_18.x nodistro InRelease
-Hit:3 https://mirror.hetzner.com/ubuntu/packages noble-updates InRelease
-Hit:4 https://mirror.hetzner.com/ubuntu/packages noble-backports InRelease
-Hit:5 https://mirror.hetzner.com/ubuntu/security noble-security InRelease
-Hit:6 https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 InRelease
-Reading package lists... Done
-W: https://repo.mongodb.org/apt/ubuntu/dists/focal/mongodb-org/6.0/InRelease: Key is stored in legacy trusted.gpg keyring (/etc/apt/trusted.gpg), see the DEPRECATION section in apt-key(8) for details.
-Reading package lists... Done
-Building dependency tree... Done
-Reading state information... Done
-Some packages could not be installed. This may mean that you have
-requested an impossible situation or if you are using the unstable
-distribution that some required packages have not yet been created
-or been moved out of Incoming.
-The following information may help to resolve the situation:
+Please enter your domain information:
+Domain name (e.g., atlas.example.com): [2025-09-27 17:47:55] ERROR: Installation failed with exit code 1
+[2025-09-27 17:47:55] WARNING: Executing rollback procedures...
+[2025-09-27 17:47:55] WARNING: Executing rollback command: rm -rf /opt/atlas-ai /var/log/atlas-ai /var/backups/atlas-ai /etc/atlas-ai /var/www/atlas-ai
+[2025-09-27 17:47:55] WARNING: Rollback completed
 
-The following packages have unmet dependencies:
- mongodb-org-mongos : Depends: libssl1.1 (>= 1.1.1) but it is not installable
- mongodb-org-server : Depends: libssl1.1 (>= 1.1.1) but it is not installable
-E: Unable to correct problems, you have held broken packages.
-[2025-09-27 17:10:36] ERROR: Installation failed with exit code 100
-[2025-09-27 17:10:36] WARNING: Executing rollback procedures...
-[2025-09-27 17:10:36] WARNING: Executing rollback command: rm -rf /opt/atlas-ai /var/log/atlas-ai /var/backups/atlas-ai /etc/atlas-ai /var/www/atlas-ai
-[2025-09-27 17:10:36] WARNING: Rollback completed
-
-[2025-09-27 17:10:36] ERROR: Installation failed. Debug information saved to /tmp/atlas-install-debug.log
+[2025-09-27 17:47:55] ERROR: Installation failed. Debug information saved to /tmp/atlas-install-debug.log
 Please check the logs and try again, or contact support with the debug file.
 Common solutions:
   1. Ensure you have sufficient disk space (10GB+ free)

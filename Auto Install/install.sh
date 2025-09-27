@@ -216,12 +216,20 @@ prompt_user_input() {
     echo "• Automated backups and security hardening"
     echo
 
+    # Check if we can read from terminal (for piped execution)
+    if [[ ! -t 0 ]] && [[ -z "$DOMAIN" || -z "$EMAIL" ]]; then
+        echo -e "${RED}ERROR: This script is running in non-interactive mode but requires domain and email.${NC}"
+        echo "Please provide them as command line arguments:"
+        echo "curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com"
+        exit 1
+    fi
+
     # Prompt for domain if not provided via command line
     if [[ -z "$DOMAIN" ]]; then
         echo -e "${YELLOW}Please enter your domain information:${NC}"
         while [[ -z "$DOMAIN" ]]; do
             echo -n "Domain name (e.g., atlas.example.com): "
-            read -r DOMAIN
+            read -r DOMAIN < /dev/tty
             if [[ -z "$DOMAIN" ]]; then
                 echo -e "${RED}Domain is required. Please enter a valid domain name.${NC}"
             elif [[ ! "$DOMAIN" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$ ]]; then
@@ -235,7 +243,7 @@ prompt_user_input() {
     if [[ -z "$EMAIL" ]]; then
         echo -n "Email address (for SSL certificates): "
         while [[ -z "$EMAIL" ]]; do
-            read -r EMAIL
+            read -r EMAIL < /dev/tty
             if [[ -z "$EMAIL" ]]; then
                 echo -e "${RED}Email is required. Please enter a valid email address.${NC}"
                 echo -n "Email address (for SSL certificates): "
@@ -254,14 +262,18 @@ prompt_user_input() {
     echo "• Environment: $ENVIRONMENT"
     echo
 
-    # Confirmation prompt
-    echo -e "${YELLOW}Do you want to proceed with the installation? (y/N):${NC}"
-    read -r -n 1 confirmation
-    echo
+    # Confirmation prompt (only in interactive mode)
+    if [[ -t 0 ]]; then
+        echo -e "${YELLOW}Do you want to proceed with the installation? (y/N):${NC}"
+        read -r -n 1 confirmation < /dev/tty
+        echo
 
-    if [[ ! "$confirmation" =~ ^[Yy]$ ]]; then
-        echo -e "${YELLOW}Installation cancelled by user.${NC}"
-        exit 0
+        if [[ ! "$confirmation" =~ ^[Yy]$ ]]; then
+            echo -e "${YELLOW}Installation cancelled by user.${NC}"
+            exit 0
+        fi
+    else
+        echo -e "${GREEN}Proceeding with installation...${NC}"
     fi
 
     echo -e "${GREEN}Starting installation...${NC}"

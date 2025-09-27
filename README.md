@@ -74,10 +74,21 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 ## 🔧 Installation Options
 
 ### Basic Installation (Interactive Setup)
+
+**Option 1: Download and Run (Recommended for Interactive Setup)**
 ```bash
-curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash
+# Download the installer
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh -o install.sh
+
+# Make it executable and run
+chmod +x install.sh
+sudo ./install.sh
 ```
-*The installer will prompt you for your domain name and email address.*
+
+**Option 2: One-Command with Parameters**
+```bash
+curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install/install.sh | bash -s -- --domain=yourdomain.com --email=your@email.com
+```
 
 ### Advanced Installation (Command Line Parameters)
 ```bash

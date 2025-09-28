@@ -123,7 +123,7 @@ class SeedingService {
     console.log('📚 Knowledge base seeded successfully');
   }
 
-  private async seedApplicationConfig(): Promise<void> => {
+  private async seedApplicationConfig(): Promise<void> {
     const config = new ApplicationConfig({
       permissions: {
         admin: {

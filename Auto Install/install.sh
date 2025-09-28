@@ -708,43 +708,30 @@ install_mongodb() {
 
             apt-get update
 
-            # Try to install MongoDB with error handling
+            # Check if libssl1.1 is available before MongoDB installation
+            if ! dpkg -l | grep -q libssl1.1 && [[ "$UBUNTU_MAJOR" -ge 22 ]]; then
+                log "libssl1.1 not found, installing for MongoDB compatibility..."
+                apt-get update
+                if ! apt-get install -y libssl1.1; then
+                    warn "Could not install libssl1.1 from standard repositories, trying alternative..."
+                    # Add focal-security repository for libssl1.1
+                    if ! grep -q "focal-security" /etc/apt/sources.list.d/focal-security.list 2>/dev/null; then
+                        echo "deb http://security.ubuntu.com/ubuntu focal-security main" >> /etc/apt/sources.list.d/focal-security.list
+                        apt-get update
+                    fi
+                    apt-get install -y libssl1.1 2>&1 | tee -a "$INSTALL_LOG" || warn "Could not install libssl1.1 compatibility"
+                fi
+            fi
+
+            # Try to install MongoDB
             log "Attempting to install MongoDB 6.0..."
             if ! apt-get install -y mongodb-org 2>&1 | tee -a "$INSTALL_LOG"; then
-                warn "Failed to install MongoDB 6.0, checking dependencies and trying fallback installation..."
+                warn "MongoDB installation failed, trying force installation..."
+                # Final fallback: try to force install despite dependency warnings
+                apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages mongodb-org 2>&1 | tee -a "$INSTALL_LOG"
 
-                # Check if libssl1.1 is available
-                if ! dpkg -l | grep -q libssl1.1; then
-                    log "libssl1.1 not found, attempting to install..."
-                    apt-get update
-                    if ! apt-get install -y libssl1.1; then
-                        warn "Could not install libssl1.1 from standard repositories"
-                        # Try to install from Ubuntu 20.04 packages
-                        log "Downloading libssl1.1 from Ubuntu 20.04 repositories..."
-                        if wget -q http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.23_amd64.deb -O /tmp/libssl1.1.deb; then
-                            log "Installing libssl1.1 compatibility package..."
-                            if dpkg -i /tmp/libssl1.1.deb 2>&1 | tee -a "$INSTALL_LOG"; then
-                                log "libssl1.1 compatibility package installed successfully"
-                            else
-                                warn "libssl1.1 installation had issues, but continuing..."
-                            fi
-                            rm -f /tmp/libssl1.1.deb
-                        else
-                            warn "Failed to download libssl1.1 package"
-                        fi
-                    fi
-                fi
-
-                # Retry MongoDB installation
-                log "Retrying MongoDB installation..."
-                if ! apt-get install -y mongodb-org 2>&1 | tee -a "$INSTALL_LOG"; then
-                    # Final fallback: try to force install despite dependency warnings
-                    warn "Standard installation failed, attempting force installation..."
-                    apt-get install -y --allow-downgrades --allow-remove-essential --allow-change-held-packages mongodb-org 2>&1 | tee -a "$INSTALL_LOG"
-
-                    if [[ $? -ne 0 ]]; then
-                        fatal "MongoDB installation failed. Check $INSTALL_LOG for details. System: Ubuntu $UBUNTU_VERSION"
-                    fi
+                if [[ $? -ne 0 ]]; then
+                    fatal "MongoDB installation failed. Check $INSTALL_LOG for details. System: Ubuntu $UBUNTU_VERSION"
                 fi
             fi
             ;;
@@ -771,12 +758,36 @@ EOF
     esac
 
     # Enable and start MongoDB
-    systemctl enable mongod
-    systemctl start mongod
+    log "Enabling and starting MongoDB service..."
+
+    if ! systemctl enable mongod 2>&1 | tee -a "$INSTALL_LOG"; then
+        warn "Failed to enable MongoDB service, trying manual startup..."
+    fi
+
+    if ! systemctl start mongod 2>&1 | tee -a "$INSTALL_LOG"; then
+        warn "Failed to start MongoDB service, checking status..."
+        systemctl status mongod 2>&1 | tee -a "$INSTALL_LOG" || true
+
+        # Try to start again after a brief wait
+        sleep 3
+        if ! systemctl start mongod 2>&1 | tee -a "$INSTALL_LOG"; then
+            fatal "MongoDB service failed to start. Check $INSTALL_LOG for details."
+        fi
+    fi
+
+    # Verify MongoDB is running
+    if ! systemctl is-active --quiet mongod; then
+        warn "MongoDB service is not running, attempting restart..."
+        systemctl restart mongod 2>&1 | tee -a "$INSTALL_LOG"
+        sleep 3
+        if ! systemctl is-active --quiet mongod; then
+            fatal "MongoDB service could not be started. Check system logs."
+        fi
+    fi
 
     add_rollback "systemctl stop mongod && systemctl disable mongod"
 
-    log "MongoDB installed and started"
+    log "MongoDB installed and started successfully"
 }
 
 configure_mongodb() {

@@ -862,8 +862,8 @@ setup_backend() {
 
     cd "$INSTALL_DIR/Back"
 
-    # Install dependencies
-    npm install --production
+    # Install all dependencies (including dev dependencies for build)
+    npm install
 
     # Create environment file
     cat > .env << EOF
@@ -898,6 +898,9 @@ EOF
     # Build the application
     npm run build
 
+    # Remove dev dependencies after build (keep only production dependencies)
+    npm prune --production
+
     log "Backend setup completed"
 }
 
@@ -906,14 +909,17 @@ setup_frontend() {
 
     cd "$INSTALL_DIR/Front"
 
-    # Install dependencies
-    npm install --production
+    # Install all dependencies (including dev dependencies for build)
+    npm install
 
     # Build the application
     npm run build
 
     # Copy build files to web directory
     cp -r dist/* /var/www/atlas-ai/ || cp -r build/* /var/www/atlas-ai/
+
+    # Remove dev dependencies after build (keep only production dependencies)
+    npm prune --production
 
     # Set proper permissions
     chown -R www-data:www-data /var/www/atlas-ai

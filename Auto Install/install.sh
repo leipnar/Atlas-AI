@@ -664,7 +664,15 @@ install_mongodb() {
     case "$OS_TYPE" in
         ubuntu|debian)
             # Check Ubuntu version for compatibility
-            UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null || echo "20.04")
+            # Get Ubuntu version with fallback methods
+            if command -v lsb_release >/dev/null 2>&1; then
+                UBUNTU_VERSION=$(lsb_release -rs 2>/dev/null)
+            elif [[ -f /etc/os-release ]]; then
+                UBUNTU_VERSION=$(grep '^VERSION_ID=' /etc/os-release | cut -d'"' -f2)
+            else
+                UBUNTU_VERSION="20.04"
+                warn "Could not determine Ubuntu version, assuming 20.04"
+            fi
             UBUNTU_MAJOR=$(echo "$UBUNTU_VERSION" | cut -d. -f1)
             UBUNTU_MINOR=$(echo "$UBUNTU_VERSION" | cut -d. -f2)
 
@@ -796,8 +804,20 @@ configure_mongodb() {
     # Wait for MongoDB to start
     sleep 5
 
+    # Detect MongoDB shell command
+    MONGO_SHELL=""
+    if command -v mongosh >/dev/null 2>&1; then
+        MONGO_SHELL="mongosh"
+        log "Using mongosh for MongoDB operations"
+    elif command -v mongo >/dev/null 2>&1; then
+        MONGO_SHELL="mongo"
+        log "Using mongo for MongoDB operations"
+    else
+        fatal "MongoDB shell not found. Neither 'mongosh' nor 'mongo' command is available."
+    fi
+
     # Create admin user
-    mongosh --eval "
+    $MONGO_SHELL --eval "
         use admin;
         db.createUser({
             user: 'admin',
@@ -1190,7 +1210,14 @@ else
 fi
 
 # Check MongoDB
-if mongosh --eval "db.adminCommand('ping')" > /dev/null 2>&1; then
+MONGO_CMD=""
+if command -v mongosh >/dev/null 2>&1; then
+    MONGO_CMD="mongosh"
+elif command -v mongo >/dev/null 2>&1; then
+    MONGO_CMD="mongo"
+fi
+
+if [ -n "$MONGO_CMD" ] && $MONGO_CMD --eval "db.adminCommand('ping')" > /dev/null 2>&1; then
     echo "$(date): MongoDB OK" >> "$LOG_FILE"
 else
     echo "$(date): MongoDB FAILED" >> "$LOG_FILE"

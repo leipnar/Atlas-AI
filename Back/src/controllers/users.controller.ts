@@ -80,7 +80,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
     await user.save();
 
     const userResponse = user.toObject();
-    delete userResponse.password;
+    delete (userResponse as any).password;
 
     res.status(201).json({
       success: true,

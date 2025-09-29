@@ -1,7 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { ApplicationConfig, AllRolePermissions, ModelConfig, CompanyInfo, SmtpConfig } from '../types';
 
-export interface IApplicationConfig extends ApplicationConfig, Document {}
+export interface IApplicationConfig extends Document {
+  permissions: any;
+  modelConfig: any;
+  companyInfo: any;
+  smtpConfig: any;
+  geminiApiKey: string;
+}
 
 const RolePermissionsSchema = new Schema({
   canViewDashboard: { type: Boolean, default: false },

@@ -3,13 +3,6 @@ import { User } from '../models';
 import { ApiResponse, UserDocument } from '../types';
 import { transformUser } from '../utils/transform';
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any;
-    }
-  }
-}
 
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

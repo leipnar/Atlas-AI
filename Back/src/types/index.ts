@@ -1,6 +1,7 @@
 export type UserRole = 'admin' | 'manager' | 'supervisor' | 'support' | 'client';
 
 export interface User {
+  _id?: string;
   username: string;
   firstName: string;
   lastName: string;
@@ -182,10 +183,3 @@ export interface ApiResponse<T = any> {
   error?: string;
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: User;
-    }
-  }
-}

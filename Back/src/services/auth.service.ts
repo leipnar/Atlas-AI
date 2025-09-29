@@ -19,7 +19,7 @@ class AuthService {
       }
 
       const userWithoutPassword = user.toObject();
-      delete userWithoutPassword.password;
+      delete (userWithoutPassword as any).password;
 
       return {
         success: true,

@@ -121,7 +121,7 @@ export const getSmtpConfig = async (req: Request, res: Response): Promise<void> 
     }
 
     const smtpConfigWithoutPassword = { ...config.smtpConfig };
-    delete smtpConfigWithoutPassword.password;
+    delete (smtpConfigWithoutPassword as any).password;
 
     res.json({
       success: true,
@@ -150,7 +150,7 @@ export const updateSmtpConfig = async (req: Request, res: Response): Promise<voi
     await config.save();
 
     const responseConfig = { ...config.smtpConfig };
-    delete responseConfig.password;
+    delete (responseConfig as any).password;
 
     res.json({
       success: true,

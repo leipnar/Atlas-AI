@@ -1,7 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { KnowledgeEntryDocument } from '../types';
 
-export interface IKnowledgeEntry extends Omit<KnowledgeEntryDocument, '_id'>, Document {}
+export interface IKnowledgeEntry extends Document {
+  tag: string;
+  content: string;
+  lastUpdated: Date;
+  updatedBy: string;
+}
 
 const KnowledgeBaseSchema: Schema = new Schema({
   tag: {

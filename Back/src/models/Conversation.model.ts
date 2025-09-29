@@ -1,7 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { ConversationDocument, Message } from '../types';
+import { Message } from '../types';
 
-export interface IConversation extends Omit<ConversationDocument, '_id'>, Document {}
+export interface IConversation extends Document {
+  userId: string;
+  startTime: Date;
+  messages: Message[];
+}
 
 const MessageSchema: Schema = new Schema({
   id: {

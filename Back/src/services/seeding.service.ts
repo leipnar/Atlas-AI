@@ -1,5 +1,5 @@
 import { User, KnowledgeBase, ApplicationConfig } from '../models';
-import { AuthService } from './auth.service';
+import AuthService from './auth.service';
 
 class SeedingService {
   async seedDatabase(): Promise<void> {

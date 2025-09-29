@@ -1,7 +1,22 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { UserDocument } from '../types';
 
-export interface IUser extends Omit<UserDocument, '_id'>, Document {}
+export interface IUser extends Document {
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobile?: string;
+  role: 'admin' | 'manager' | 'supervisor' | 'support' | 'client';
+  emailVerified: boolean;
+  createdAt: Date;
+  lastLogin?: {
+    timestamp: Date;
+    ip: string;
+    device: string;
+    os: string;
+  };
+}
 
 const UserSchema: Schema = new Schema({
   username: {

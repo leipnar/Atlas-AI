@@ -3,13 +3,6 @@ import { AuthService } from '../services';
 import { LoginRequest, ApiResponse, UserDocument } from '../types';
 import { transformUser } from '../utils/transform';
 
-declare global {
-  namespace Express {
-    interface Session {
-      userId?: string;
-    }
-  }
-}
 
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {

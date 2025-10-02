@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 
 import { connectDatabase, sessionConfig } from './config';
 import apiRoutes from './api';
-import { errorHandler, notFound } from './middleware';
+import { errorHandler, notFound, sessionTimeout } from './middleware';
 import SeedingService from './services/seeding.service';
 
 dotenv.config();
@@ -72,6 +72,7 @@ app.use(mongoSanitize());
 app.use(hpp());
 
 app.use(sessionConfig);
+app.use(sessionTimeout);
 
 app.use('/api/v1', limiter);
 

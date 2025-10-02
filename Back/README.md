@@ -56,6 +56,10 @@ This is the backend API for the Atlas AI Support Assistant application, built wi
 
    # Environment
    NODE_ENV=development
+   
+   # Session Timeout Configuration (in milliseconds)
+   SESSION_ABSOLUTE_TIMEOUT=86400000  # 24 hours - Maximum session duration
+   SESSION_IDLE_TIMEOUT=1800000       # 30 minutes - Inactivity timeout
    ```
 
 5. **Start MongoDB** (if running locally):
@@ -143,13 +147,15 @@ src/
 | `SESSION_SECRET` | Session encryption secret | Required |
 | `GEMINI_API_KEY` | Google Gemini API key | Required |
 | `NODE_ENV` | Environment mode | `development` |
+| `SESSION_ABSOLUTE_TIMEOUT` | Maximum session duration (ms) | `86400000` (24 hours) |
+| `SESSION_IDLE_TIMEOUT` | Session inactivity timeout (ms) | `1800000` (30 minutes) |
 
 ## Security
 
 - Rate limiting (100 requests per 15 minutes per IP)
 - CORS protection
 - Helmet security headers
-- Session-based authentication
+- Session-based authentication with configurable timeouts
 - Password hashing with bcrypt
 - Input validation with Joi
 - Role-based access control

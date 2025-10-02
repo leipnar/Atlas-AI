@@ -89,17 +89,90 @@ export const getCurrentUser = async (): Promise<UserCredentials | null> => {
   }
 };
 
-export const loginWithPasskey = async (username: string): Promise<{ success: boolean, user?: User, message?: string }> => {
+
+// ==================== PASSKEY AUTHENTICATION ====================
+
+import { startRegistration, startAuthentication } from '@simplewebauthn/browser';
+
+export const registerPasskeyOptions = async (): Promise<any> => {
   try {
-    const response = await apiCall('/auth/passkey', {
+    const response = await apiCall('/auth/passkey/register-options', {
       method: 'POST',
-      body: JSON.stringify({ username })
+      body: JSON.stringify({})
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message);
+    return data.options;
+  } catch (error) {
+    console.error('Get passkey registration options error:', error);
+    throw error;
+  }
+};
+
+export const verifyPasskeyRegistration = async (credential: any): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const response = await apiCall('/auth/passkey/register-verify', {
+      method: 'POST',
+      body: JSON.stringify({ credential })
     });
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Passkey login error:', error);
+    console.error('Verify passkey registration error:', error);
     return { success: false, message: 'Network error' };
+  }
+};
+
+export const loginWithPasskeyOptions = async (username: string): Promise<any> => {
+  try {
+    const response = await apiCall('/auth/passkey/auth-options', {
+      method: 'POST',
+      body: JSON.stringify({ username })
+    });
+    const data = await response.json();
+    if (!data.success) throw new Error(data.message);
+    return data.options;
+  } catch (error) {
+    console.error('Get passkey authentication options error:', error);
+    throw error;
+  }
+};
+
+export const verifyPasskeyAuthentication = async (username: string, credential: any): Promise<{ success: boolean; user?: User; message?: string }> => {
+  try {
+    const response = await apiCall('/auth/passkey/auth-verify', {
+      method: 'POST',
+      body: JSON.stringify({ username, credential })
+    });
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Verify passkey authentication error:', error);
+    return { success: false, message: 'Network error' };
+  }
+};
+
+export const registerUserPasskey = async (): Promise<{ success: boolean; message?: string }> => {
+  try {
+    const options = await registerPasskeyOptions();
+    const credential = await startRegistration(options);
+    const result = await verifyPasskeyRegistration(credential);
+    return result;
+  } catch (error: any) {
+    console.error('Register passkey flow error:', error);
+    return { success: false, message: error.message || 'Passkey registration failed' };
+  }
+};
+
+export const loginWithUserPasskey = async (username: string): Promise<{ success: boolean; user?: User; message?: string }> => {
+  try {
+    const options = await loginWithPasskeyOptions(username);
+    const credential = await startAuthentication(options);
+    const result = await verifyPasskeyAuthentication(username, credential);
+    return result;
+  } catch (error: any) {
+    console.error('Passkey login flow error:', error);
+    return { success: false, message: error.message || 'Passkey login failed' };
   }
 };
 
@@ -325,7 +398,7 @@ export const getCompanyInfo = async (): Promise<CompanyInfo> => {
     return {
       logo: null,
       en: { name: 'Atlas Corp.', about: 'Welcome to the Atlas AI Assistant.' },
-      fa: { name: 'شرکت اطلس', about: 'به دستیار هوش مصنوعی اطلس خوش آمدید.' }
+      fa: { name: 'Ø´Ø±Ú©Øª Ø§Ø·Ù„Ø³', about: 'Ø¨Ù‡ Ø¯Ø³ØªÛŒØ§Ø± Ù‡ÙˆØ´ Ù…ØµÙ†ÙˆØ¹ÛŒ Ø§Ø·Ù„Ø³ Ø®ÙˆØ´ Ø¢Ù…Ø¯ÛŒØ¯.' }
     };
   }
 };
@@ -352,18 +425,18 @@ export const getPanelConfig = async (): Promise<PanelConfig> => {
     console.error('Error fetching panel config:', error);
     return {
       aiNameEn: 'Atlas',
-      aiNameFa: 'اطلس',
+      aiNameFa: 'Ø§Ø·Ù„Ø³',
       chatHeaderTitleEn: 'Conversation with Atlas',
-      chatHeaderTitleFa: 'گفتگو با اطلس',
+      chatHeaderTitleFa: 'Ú¯ÙØªÚ¯Ùˆ Ø¨Ø§ Ø§Ø·Ù„Ø³',
       chatPlaceholderEn: 'Type your message here...',
-      chatPlaceholderFa: 'پیام خود را اینجا بنویسید...',
+      chatPlaceholderFa: 'Ù¾ÛŒØ§Ù… Ø®ÙˆØ¯ Ø±Ø§ Ø§ÛŒÙ†Ø¬Ø§ Ø¨Ù†ÙˆÛŒØ³ÛŒØ¯...',
       welcomeMessageEn: 'Hello! How can I help you today?',
-      welcomeMessageFa: 'سلام! چطور می‌توانم امروز به شما کمک کنم؟',
+      welcomeMessageFa: 'Ø³Ù„Ø§Ù…! Ú†Ø·ÙˆØ± Ù…ÛŒâ€ŒØªÙˆØ§Ù†Ù… Ø§Ù…Ø±ÙˆØ² Ø¨Ù‡ Ø´Ù…Ø§ Ú©Ù…Ú© Ú©Ù†Ù…ØŸ',
       aiAvatar: null,
       privacyPolicyEn: 'This is the default Privacy Policy.',
-      privacyPolicyFa: 'این متن پیش‌فرض سیاست حفظ حریم خصوصی است.',
+      privacyPolicyFa: 'Ø§ÛŒÙ† Ù…ØªÙ† Ù¾ÛŒØ´â€ŒÙØ±Ø¶ Ø³ÛŒØ§Ø³Øª Ø­ÙØ¸ Ø­Ø±ÛŒÙ… Ø®ØµÙˆØµÛŒ Ø§Ø³Øª.',
       termsOfServiceEn: 'These are the default Terms of Service.',
-      termsOfServiceFa: 'این متن پیش‌فرض شرایط خدمات است.'
+      termsOfServiceFa: 'Ø§ÛŒÙ† Ù…ØªÙ† Ù¾ÛŒØ´â€ŒÙØ±Ø¶ Ø´Ø±Ø§ÛŒØ· Ø®Ø¯Ù…Ø§Øª Ø§Ø³Øª.'
     };
   }
 };

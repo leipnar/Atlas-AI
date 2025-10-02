@@ -219,19 +219,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLogin, onSocialLogin, on
     setIsLoading(true);
     setError(null);
 
-    const passkeyAuthResult = await api.loginWithPasskey(passkeyUsername);
+    const passkeyAuthResult = await api.loginWithUserPasskey(passkeyUsername);
     
-    if (passkeyAuthResult.success) {
-        const result = await onLogin(passkeyUsername, 'passkey_authenticated');
-        if (!result.success) {
-            setError(result.message || t('invalidCredentials'));
-        }
+    if (passkeyAuthResult.success && passkeyAuthResult.user) {
+        onLoginSuccess(passkeyAuthResult.user);
+        setIsPasskeyModalOpen(false);
     } else {
-        setError(passkeyAuthResult.message || t('passkeyLoginFailed'));
+        setError(passkeyAuthResult.message || t('passkeyLoginFailed') || 'Passkey login failed');
     }
     
     setIsLoading(false);
-    setIsPasskeyModalOpen(false);
   };
 
   const handleSocialLoginClick = async (provider: 'google' | 'microsoft') => {

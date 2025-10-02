@@ -48,15 +48,18 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ currentUser, o
     
     const handleRegisterPasskey = async () => {
         setMessage(null);
+        setIsUpdating(true);
         try {
-            const result = await api.registerPasskey(currentUser.username);
+            const result = await api.registerUserPasskey();
+            setIsUpdating(false);
             if (result.success) {
-                setMessage({ type: 'success', text: t('passkeyRegisterSuccess') });
+                setMessage({ type: 'success', text: t('passkeyRegisterSuccess') || 'Passkey registered successfully!' });
             } else {
-                setMessage({ type: 'error', text: result.message || t('passkeyRegisterFailed') });
+                setMessage({ type: 'error', text: result.message || t('passkeyRegisterFailed') || 'Failed to register passkey' });
             }
         } catch (err: any) {
-             setMessage({ type: 'error', text: t('passkeyError', { message: err.message }) });
+            setIsUpdating(false);
+            setMessage({ type: 'error', text: t('passkeyError', { message: err.message }) || err.message || 'Passkey registration error' });
         }
     };
 
@@ -93,8 +96,8 @@ export const AccountSettings: React.FC<AccountSettingsProps> = ({ currentUser, o
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('passkeyTitle')}</h3>
                 <p className="text-sm text-gray-600 mb-4">{t('passkeyDescription')}</p>
-                 <button onClick={handleRegisterPasskey} className="bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow-sm">
-                    {t('registerPasskey')}
+                 <button onClick={handleRegisterPasskey} disabled={isUpdating} className="bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg shadow-sm disabled:bg-gray-400">
+                    {isUpdating ? t('registering') || 'Registering...' : t('registerPasskey') || 'Register Passkey'}
                 </button>
             </div>
         </div>

@@ -1,5 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export interface IPasskeyCredential {
+  credentialID: string;
+  credentialPublicKey: string;
+  counter: number;
+  transports?: string[];
+}
+
 export interface IUser extends Document {
   username: string;
   password: string;
@@ -16,6 +23,8 @@ export interface IUser extends Document {
     device: string;
     os: string;
   };
+  passkeyCredentials?: IPasskeyCredential[];
+  currentChallenge?: string;
 }
 
 const UserSchema: Schema = new Schema({
@@ -82,6 +91,27 @@ const UserSchema: Schema = new Schema({
     os: {
       type: String
     }
+  },
+  passkeyCredentials: [{
+    credentialID: {
+      type: String,
+      required: true
+    },
+    credentialPublicKey: {
+      type: String,
+      required: true
+    },
+    counter: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    transports: [{
+      type: String
+    }]
+  }],
+  currentChallenge: {
+    type: String
   }
 }, {
   timestamps: true

@@ -8,7 +8,8 @@ declare module 'express-session' {
 }
 
 export const sessionTimeout = (req: Request, res: Response, next: NextFunction): void => {
-  if (req.session && req.session.userId) {
+  const session = req.session as any;
+  if (req.session && session.userId) {
     const now = Date.now();
     const lastActivity = req.session.lastActivity || now;
     

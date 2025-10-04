@@ -6,7 +6,8 @@ import { transformUser } from '../utils/transform';
 
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    if (!req.session || !req.session.userId) {
+    const session = req.session as any;
+    if (!req.session || !session.userId) {
       res.status(401).json({
         success: false,
         message: 'Authentication required'
@@ -14,7 +15,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
       return;
     }
 
-    const userDoc = await User.findById(req.session.userId);
+    const userDoc = await User.findById(session.userId);
     if (!userDoc) {
       req.session.destroy((err) => {
         if (err) console.error('Session destruction error:', err);
@@ -26,7 +27,7 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
       return;
     }
 
-    req.user = transformUser(userDoc as any as UserDocument);
+    (req as any).user = transformUser(userDoc as any as UserDocument);
     next();
   } catch (error) {
     console.error('Authentication middleware error:', error);

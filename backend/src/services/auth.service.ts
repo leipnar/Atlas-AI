@@ -18,12 +18,15 @@ class AuthService {
         return { success: false, message: 'Invalid credentials' };
       }
 
-      const userWithoutPassword = user.toObject();
-      delete (userWithoutPassword as any).password;
+      const userWithoutPassword: any = user.toObject();
+      delete userWithoutPassword.password;
 
       return {
         success: true,
-        user: userWithoutPassword
+        user: {
+          ...userWithoutPassword,
+          _id: String(userWithoutPassword._id)
+        }
       };
     } catch (error) {
       console.error('Login error:', error);

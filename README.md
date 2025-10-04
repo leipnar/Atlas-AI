@@ -33,6 +33,15 @@ curl -sSL https://raw.githubusercontent.com/leipnar/Atlas-AI/main/Auto%20Install
 - **Real-Time Chat**: Instant responses with typing indicators
 - **Conversation Logging**: Complete chat history with admin review capabilities
 
+### 🔐 Authentication & Security
+- **WebAuthn Passkey Support**: Passwordless authentication with biometric/security keys (NEW in v1.1.0)
+  - Fingerprint authentication
+  - Face recognition
+  - Hardware security keys (YubiKey, etc.)
+- **Username/Password**: Traditional authentication with bcrypt hashing
+- **Session Management**: Secure session handling with timeouts
+- **Role-Based Access Control**: Fine-grained permissions per user role
+
 ### 🏗️ Complete Infrastructure
 - **Frontend**: Modern React application with responsive design
 - **Backend**: Node.js/Express API with TypeScript support

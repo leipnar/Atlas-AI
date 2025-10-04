@@ -11,8 +11,9 @@
   import type {
     RegistrationResponseJSON,
     AuthenticationResponseJSON,
-    AuthenticatorTransportFuture,
   } from '@simplewebauthn/server/script/deps';
+
+  type AuthenticatorTransport = 'ble' | 'cable' | 'hybrid' | 'internal' | 'nfc' | 'smart-card' | 'usb';
   import User from '../models/User.model';
 
   const RP_NAME = 'Atlas AI Support Assistant';
@@ -26,10 +27,10 @@
       const result = await AuthService.login(username, password);
 
       if (result.success && result.user) {
-        req.session.userId = result.user._id;
+        (req.session as any).userId = result.user._id;
 
         await AuthService.updateLastLogin(
-          result.user._id,
+          result.user._id || '',
           req.ip || 'unknown',
           req.get('User-Agent') || 'unknown'
         );
@@ -68,12 +69,12 @@
 
   export const getCurrentUser = async (req: Request, res: Response): Promise<void> => {
     try {
-      if (!req.user) {
+      if (!(req as any).user) {
         res.status(401).json(null);
         return;
       }
 
-      res.json(req.user);
+      res.json((req as any).user);
     } catch (error) {
       console.error('Get current user error:', error);
       res.status(500).json(null);
@@ -82,27 +83,27 @@
 
   export const generatePasskeyRegistrationOptions = async (req: Request, res: Response): Promise<void> => {
     try {
-      if (!req.session.userId) {
+      if (!(req.session as any).userId) {
         res.status(401).json({ success: false, message: 'Not authenticated' });
         return;
       }
 
-      const user = await User.findById(req.session.userId);
+      const user = await User.findById((req.session as any).userId);
       if (!user) {
         res.status(404).json({ success: false, message: 'User not found' });
         return;
       }
 
       const existingCredentials = (user.passkeyCredentials || []).map(cred => ({
-        id: Buffer.from(cred.credentialID, 'base64'),
+        id: Buffer.from(cred.credentialID, 'base64url'),
         type: 'public-key' as const,
-        transports: cred.transports as AuthenticatorTransportFuture[],
+        transports: cred.transports as AuthenticatorTransport[],
       }));
 
       const options = await generateRegistrationOptions({
         rpName: RP_NAME,
         rpID: RP_ID,
-        userID: user._id.toString(),
+        userID: String(user._id),
         userName: user.username,
         userDisplayName: `${user.firstName} ${user.lastName}`,
         attestationType: 'none',
@@ -125,12 +126,12 @@
 
   export const verifyPasskeyRegistration = async (req: Request, res: Response): Promise<void> => {
     try {
-      if (!req.session.userId) {
+      if (!(req.session as any).userId) {
         res.status(401).json({ success: false, message: 'Not authenticated' });
         return;
       }
 
-      const user = await User.findById(req.session.userId);
+      const user = await User.findById((req.session as any).userId);
       if (!user) {
         res.status(404).json({ success: false, message: 'User not found' });
         return;
@@ -162,7 +163,7 @@
       }
 
       user.passkeyCredentials.push({
-        credentialID: Buffer.from(credentialID).toString('base64'),
+        credentialID: Buffer.from(credentialID).toString('base64url'),
         credentialPublicKey: Buffer.from(credentialPublicKey).toString('base64'),
         counter,
         transports: credential.response.transports,
@@ -199,9 +200,9 @@
       }
 
       const allowCredentials = user.passkeyCredentials.map(cred => ({
-        id: Buffer.from(cred.credentialID, 'base64'),
+        id: Buffer.from(cred.credentialID, 'base64url'),
         type: 'public-key' as const,
-        transports: cred.transports as AuthenticatorTransportFuture[],
+        transports: cred.transports as AuthenticatorTransport[],
       }));
 
       const options = await generateAuthenticationOptions({
@@ -241,25 +242,43 @@
       }
 
       const credentialID = credential.id;
+      console.log("🔍 Login - Looking for credential:", credentialID);
+      console.log("🔍 Login - User has credentials:", user.passkeyCredentials?.map(c => c.credentialID));
+
       const passkeyCredential = user.passkeyCredentials?.find(
-        cred => cred.credentialID === Buffer.from(credentialID, 'base64url').toString('base64')
+        cred => cred.credentialID === credentialID
       );
 
       if (!passkeyCredential) {
+        console.error("❌ Passkey not found for this user");
         res.status(400).json({ success: false, message: 'Passkey not found for this user' });
         return;
       }
+
+      console.log("🔍 Passkey credential found:", {
+        credentialID: passkeyCredential.credentialID,
+        publicKeyLength: passkeyCredential.credentialPublicKey?.length,
+        counter: passkeyCredential.counter
+      });
+
+      const authenticator = {
+        credentialID: Buffer.from(passkeyCredential.credentialID, 'base64url'),
+        credentialPublicKey: Buffer.from(passkeyCredential.credentialPublicKey, 'base64'),
+        counter: passkeyCredential.counter,
+      };
+
+      console.log("🔍 Authenticator object:", {
+        credentialIDLength: authenticator.credentialID?.length,
+        publicKeyLength: authenticator.credentialPublicKey?.length,
+        counter: authenticator.counter
+      });
 
       const verification = await verifyAuthenticationResponse({
         response: credential,
         expectedChallenge: user.currentChallenge,
         expectedOrigin: ORIGIN,
         expectedRPID: RP_ID,
-        authenticator: {
-          credentialID: Buffer.from(passkeyCredential.credentialID, 'base64'),
-          credentialPublicKey: Buffer.from(passkeyCredential.credentialPublicKey, 'base64'),
-          counter: passkeyCredential.counter,
-        },
+        authenticator: authenticator,
       });
 
       if (!verification.verified) {
@@ -271,10 +290,10 @@
       user.currentChallenge = undefined;
       await user.save();
 
-      req.session.userId = user._id;
+      (req.session as any).userId = user._id;
 
       await AuthService.updateLastLogin(
-        user._id,
+        String(user._id),
         req.ip || 'unknown',
         req.get('User-Agent') || 'unknown'
       );
